@@ -466,11 +466,11 @@ col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     if st.session_state.show_help:
         show_help_bubble("👋 Welcome! This prototype demonstrates a complete AI/ML observability platform. Navigate through layers using the sidebar.")
-        if st.button("✕ Hide Help Mode", key="hide_help"):
+        if st.button("✕ Hide Help Mode", key="hide_help_btn"):
             st.session_state.show_help = False
             st.rerun()
     else:
-        if st.button("❓ Show Help Mode", key="show_help"):
+        if st.button("❓ Show Help Mode", key="show_help_btn"):
             st.session_state.show_help = True
             st.rerun()
 
