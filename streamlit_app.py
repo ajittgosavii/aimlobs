@@ -856,7 +856,7 @@ elif page == "💾 Layer 3: Storage":
             "Usage %": ["48%", "58%", "45%", "47%"],
             "Retention": ["7-30 days", "30-90 days", "90-365 days", "1-7 years"],
             "Search Speed": ["< 1s", "2-5s", "10-30s", "1-12h"],
-            "Replication": "3x", "2x", "1x", "1x"],
+            "Replication": ["3x", "2x", "1x", "1x"],
             "Cost/GB/Month": ["$0.15", "$0.08", "$0.023", "$0.004"]
         }
         
@@ -957,7 +957,7 @@ elif page == "💾 Layer 3: Storage":
                 xaxis_title="Index",
                 yaxis_title="Monthly Cost (USD)",
                 xaxis_tickangle=-45
-            ))
+            )
             st.plotly_chart(fig, use_container_width=True)
         
         with col2:
