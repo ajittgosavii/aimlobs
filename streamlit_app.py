@@ -1,0 +1,1449 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+import plotly.express as px
+from datetime import datetime, timedelta
+import random
+import time
+import json
+
+# Page configuration
+st.set_page_config(
+    page_title="AI/ML Observability Platform - Prototype",
+    page_icon="🔍",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Custom CSS for better styling
+st.markdown("""
+<style>
+    .main-header {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1E40AF;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    .sub-header {
+        font-size: 1.2rem;
+        color: #6B7280;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .metric-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 1.5rem;
+        border-radius: 10px;
+        color: white;
+        text-align: center;
+    }
+    .success-box {
+        background-color: #D1FAE5;
+        border-left: 5px solid #10B981;
+        padding: 1rem;
+        border-radius: 5px;
+        margin: 1rem 0;
+    }
+    .warning-box {
+        background-color: #FEF3C7;
+        border-left: 5px solid #F59E0B;
+        padding: 1rem;
+        border-radius: 5px;
+        margin: 1rem 0;
+    }
+    .error-box {
+        background-color: #FEE2E2;
+        border-left: 5px solid #EF4444;
+        padding: 1rem;
+        border-radius: 5px;
+        margin: 1rem 0;
+    }
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 2rem;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 3rem;
+        padding: 0 2rem;
+        background-color: #F3F4F6;
+        border-radius: 5px 5px 0 0;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #1E40AF;
+        color: white;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Initialize session state
+if 'log_count' not in st.session_state:
+    st.session_state.log_count = 0
+if 'alert_count' not in st.session_state:
+    st.session_state.alert_count = 0
+if 'total_cost' not in st.session_state:
+    st.session_state.total_cost = 0.0
+if 'ingestion_active' not in st.session_state:
+    st.session_state.ingestion_active = False
+if 'log_history' not in st.session_state:
+    st.session_state.log_history = []
+
+# Data generation functions
+def generate_log_entry():
+    """Generate realistic log entry"""
+    models = ["GPT-4", "Claude-3", "Llama-2", "Gemini-Pro", "Mistral-7B"]
+    stages = ["ingestion", "embedding", "retrieval", "inference", "post-processing"]
+    users = ["user_001", "user_002", "user_003", "data_science_team", "ml_ops_team"]
+    
+    trace_id = f"{random.randint(1000, 9999)}-{random.randint(1000, 9999)}-{random.randint(1000, 9999)}"
+    
+    log = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3],
+        "trace_id": trace_id,
+        "model": random.choice(models),
+        "stage": random.choice(stages),
+        "user_id": random.choice(users),
+        "latency_ms": random.randint(50, 3000),
+        "tokens_input": random.randint(100, 2000),
+        "tokens_output": random.randint(50, 1000),
+        "confidence_score": round(random.uniform(0.6, 0.99), 2),
+        "cost_usd": round(random.uniform(0.001, 0.05), 4),
+        "status": random.choice(["success", "success", "success", "warning", "error"])
+    }
+    return log
+
+def generate_rag_chain():
+    """Generate complete RAG execution chain"""
+    trace_id = f"rag-{random.randint(1000, 9999)}"
+    base_time = datetime.now()
+    
+    chain = [
+        {
+            "stage": "Ingestion",
+            "service": "document-processor",
+            "latency_ms": random.randint(10, 50),
+            "status": "success",
+            "timestamp": base_time.strftime("%H:%M:%S.%f")[:-3]
+        },
+        {
+            "stage": "Embedding",
+            "service": "embedding-service",
+            "latency_ms": random.randint(100, 200),
+            "status": "success",
+            "timestamp": (base_time + timedelta(milliseconds=50)).strftime("%H:%M:%S.%f")[:-3]
+        },
+        {
+            "stage": "Retrieval",
+            "service": "vector-db",
+            "latency_ms": random.randint(30, 80),
+            "status": "success",
+            "timestamp": (base_time + timedelta(milliseconds=250)).strftime("%H:%M:%S.%f")[:-3]
+        },
+        {
+            "stage": "Prompt Construction",
+            "service": "prompt-builder",
+            "latency_ms": random.randint(5, 15),
+            "status": "success",
+            "timestamp": (base_time + timedelta(milliseconds=330)).strftime("%H:%M:%S.%f")[:-3]
+        },
+        {
+            "stage": "LLM Inference",
+            "service": "llm-gateway",
+            "latency_ms": random.randint(1500, 2500),
+            "status": "success",
+            "timestamp": (base_time + timedelta(milliseconds=345)).strftime("%H:%M:%S.%f")[:-3]
+        },
+        {
+            "stage": "Post-Processing",
+            "service": "response-formatter",
+            "latency_ms": random.randint(10, 30),
+            "status": "success",
+            "timestamp": (base_time + timedelta(milliseconds=2845)).strftime("%H:%M:%S.%f")[:-3]
+        }
+    ]
+    
+    return trace_id, chain
+
+# Header
+st.markdown('<h1 class="main-header">🔍 AI/ML Observability Platform</h1>', unsafe_allow_html=True)
+st.markdown('<p class="sub-header">Interactive Prototype - Real-time Log Ingestion & Analytics</p>', unsafe_allow_html=True)
+
+# Sidebar navigation
+with st.sidebar:
+    st.image("https://via.placeholder.com/200x60/1E40AF/FFFFFF?text=SPLUNK+AI/ML", use_column_width=True)
+    st.markdown("---")
+    
+    page = st.radio(
+        "🧭 Navigation",
+        ["🏠 Overview Dashboard", 
+         "📥 Layer 1: Log Ingestion",
+         "⚙️ Layer 2: Processing",
+         "💾 Layer 3: Storage",
+         "📊 Layer 4: Consumption",
+         "🔗 End-to-End Tracing",
+         "⚡ Real-time Monitoring"]
+    )
+    
+    st.markdown("---")
+    st.markdown("### ⚙️ System Status")
+    st.success("✅ All systems operational")
+    st.metric("Uptime", "99.97%", delta="0.02%")
+    st.metric("Active Forwarders", "156", delta="2")
+    st.metric("Indexers", "12", delta="0")
+    
+    st.markdown("---")
+    st.markdown("### 📈 Quick Stats")
+    st.metric("Total Logs Today", f"{st.session_state.log_count:,}", delta=f"+{random.randint(100, 500)}")
+    st.metric("Active Alerts", st.session_state.alert_count, delta=f"{random.randint(-2, 3)}")
+    st.metric("Total Cost (24h)", f"${st.session_state.total_cost:.2f}", delta=f"+${random.uniform(0.5, 2.0):.2f}")
+
+# Page content based on selection
+if page == "🏠 Overview Dashboard":
+    st.header("📊 Executive Dashboard")
+    
+    # Key metrics row
+    col1, col2, col3, col4, col5 = st.columns(5)
+    
+    with col1:
+        st.metric(
+            label="Total Ingestion (24h)",
+            value="2.4 TB",
+            delta="+124 GB"
+        )
+    
+    with col2:
+        st.metric(
+            label="Avg Query Latency",
+            value="847 ms",
+            delta="-23 ms",
+            delta_color="inverse"
+        )
+    
+    with col3:
+        st.metric(
+            label="Model Inference Count",
+            value="1.2M",
+            delta="+45K"
+        )
+    
+    with col4:
+        st.metric(
+            label="Hallucination Rate",
+            value="2.3%",
+            delta="-0.5%",
+            delta_color="inverse"
+        )
+    
+    with col5:
+        st.metric(
+            label="Cost Efficiency",
+            value="$0.0023/req",
+            delta="-$0.0002",
+            delta_color="inverse"
+        )
+    
+    st.markdown("---")
+    
+    # Two column layout for charts
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("📈 Ingestion Volume (Last 24h)")
+        
+        # Generate time series data
+        hours = pd.date_range(end=datetime.now(), periods=24, freq='H')
+        volume_gb = [random.uniform(80, 120) for _ in range(24)]
+        
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=hours,
+            y=volume_gb,
+            mode='lines+markers',
+            name='Ingestion Volume',
+            line=dict(color='#1E40AF', width=3),
+            fill='tozeroy',
+            fillcolor='rgba(30, 64, 175, 0.2)'
+        ))
+        fig.update_layout(
+            height=300,
+            margin=dict(l=0, r=0, t=0, b=0),
+            xaxis_title="Time",
+            yaxis_title="Volume (GB/hour)",
+            hovermode='x unified'
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    
+    with col2:
+        st.subheader("🎯 Model Performance Distribution")
+        
+        models = ["GPT-4", "Claude-3", "Llama-2", "Gemini-Pro", "Mistral-7B"]
+        latencies = [850, 920, 1200, 780, 950]
+        
+        fig = go.Figure()
+        fig.add_trace(go.Bar(
+            x=models,
+            y=latencies,
+            marker=dict(
+                color=latencies,
+                colorscale='Viridis',
+                showscale=False
+            ),
+            text=[f"{l}ms" for l in latencies],
+            textposition='outside'
+        ))
+        fig.update_layout(
+            height=300,
+            margin=dict(l=0, r=0, t=0, b=0),
+            xaxis_title="Model",
+            yaxis_title="Avg Latency (ms)",
+            showlegend=False
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    
+    st.markdown("---")
+    
+    # RAG Pipeline Health
+    st.subheader("🔄 RAG Pipeline Stage Performance")
+    
+    stages = ["Ingestion", "Embedding", "Retrieval", "Prompt", "Inference", "Post-Proc"]
+    avg_latency = [35, 150, 60, 12, 2100, 18]
+    p95_latency = [45, 200, 85, 18, 2800, 25]
+    throughput = [12000, 11800, 11500, 11400, 9800, 9750]
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        fig = go.Figure()
+        fig.add_trace(go.Bar(name='Avg Latency', x=stages, y=avg_latency, marker_color='#10B981'))
+        fig.add_trace(go.Bar(name='P95 Latency', x=stages, y=p95_latency, marker_color='#F59E0B'))
+        fig.update_layout(
+            height=300,
+            margin=dict(l=0, r=0, t=0, b=0),
+            barmode='group',
+            xaxis_title="Pipeline Stage",
+            yaxis_title="Latency (ms)",
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    
+    with col2:
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=stages,
+            y=throughput,
+            mode='lines+markers',
+            line=dict(color='#8B5CF6', width=3),
+            marker=dict(size=10)
+        ))
+        fig.update_layout(
+            height=300,
+            margin=dict(l=0, r=0, t=0, b=0),
+            xaxis_title="Pipeline Stage",
+            yaxis_title="Throughput (req/sec)",
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    
+    st.markdown("---")
+    
+    # Active Alerts
+    st.subheader("⚠️ Active Alerts & Anomalies")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        <div class="error-box">
+            <strong>🔴 CRITICAL</strong><br/>
+            High hallucination rate detected in GPT-4<br/>
+            <small>Threshold: 15% | Current: 18.3%</small>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="warning-box">
+            <strong>🟡 WARNING</strong><br/>
+            Claude-3 latency increasing<br/>
+            <small>Baseline: 850ms | Current: 1240ms</small>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div class="success-box">
+            <strong>🟢 INFO</strong><br/>
+            Cost optimization detected<br/>
+            <small>Savings: $234.50 (24h)</small>
+        </div>
+        """, unsafe_allow_html=True)
+
+elif page == "📥 Layer 1: Log Ingestion":
+    st.header("📥 Layer 1: Log Ingestion & Collection Infrastructure")
+    
+    tab1, tab2, tab3, tab4 = st.tabs(["🎮 Live Simulator", "📊 Forwarder Status", "🔍 Log Inspector", "📈 Metrics"])
+    
+    with tab1:
+        st.subheader("🎮 Real-time Log Ingestion Simulator")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            if st.button("🚀 Start Ingestion", type="primary", use_container_width=True):
+                st.session_state.ingestion_active = True
+        
+        with col2:
+            if st.button("⏸️ Pause Ingestion", use_container_width=True):
+                st.session_state.ingestion_active = False
+        
+        with col3:
+            if st.button("🔄 Reset Stats", use_container_width=True):
+                st.session_state.log_count = 0
+                st.session_state.total_cost = 0.0
+                st.session_state.log_history = []
+        
+        st.markdown("---")
+        
+        # Live stats
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Logs Ingested", st.session_state.log_count)
+        with col2:
+            st.metric("Ingestion Rate", f"{random.randint(1000, 3000)}/sec")
+        with col3:
+            st.metric("Total Cost", f"${st.session_state.total_cost:.4f}")
+        with col4:
+            st.metric("Buffer Usage", f"{random.randint(20, 60)}%")
+        
+        # Live log stream
+        st.subheader("📜 Live Log Stream")
+        
+        log_container = st.container()
+        
+        if st.session_state.ingestion_active:
+            with log_container:
+                # Generate and display logs
+                for _ in range(5):
+                    log = generate_log_entry()
+                    st.session_state.log_count += 1
+                    st.session_state.total_cost += log['cost_usd']
+                    st.session_state.log_history.append(log)
+                    
+                    # Keep only last 100 logs
+                    if len(st.session_state.log_history) > 100:
+                        st.session_state.log_history.pop(0)
+                    
+                    status_color = {
+                        "success": "🟢",
+                        "warning": "🟡",
+                        "error": "🔴"
+                    }
+                    
+                    st.code(
+                        f"{status_color[log['status']]} [{log['timestamp']}] "
+                        f"trace_id={log['trace_id']} | model={log['model']} | "
+                        f"stage={log['stage']} | latency={log['latency_ms']}ms | "
+                        f"tokens={log['tokens_input']}→{log['tokens_output']} | "
+                        f"cost=${log['cost_usd']:.4f}",
+                        language="log"
+                    )
+                
+                time.sleep(0.1)
+                st.rerun()
+        else:
+            with log_container:
+                st.info("Click 'Start Ingestion' to begin streaming logs...")
+    
+    with tab2:
+        st.subheader("📊 Universal Forwarder Status")
+        
+        # Generate forwarder data
+        forwarders_data = []
+        for i in range(10):
+            forwarders_data.append({
+                "Forwarder ID": f"UF-{i+1:03d}",
+                "Host": f"app-server-{i+1:02d}.prod.internal",
+                "Status": random.choice(["🟢 Active", "🟢 Active", "🟢 Active", "🟡 Warning"]),
+                "CPU %": f"{random.randint(10, 70)}%",
+                "Memory": f"{random.randint(50, 95)} MB",
+                "Logs/sec": f"{random.randint(100, 1500)}",
+                "Buffer": f"{random.randint(5, 45)}%"
+            })
+        
+        df = pd.DataFrame(forwarders_data)
+        st.dataframe(df, use_container_width=True, hide_index=True)
+        
+        st.markdown("---")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.subheader("Forwarder Health Distribution")
+            health_data = {"Active": 156, "Warning": 3, "Error": 1}
+            fig = go.Figure(data=[go.Pie(
+                labels=list(health_data.keys()),
+                values=list(health_data.values()),
+                marker=dict(colors=['#10B981', '#F59E0B', '#EF4444']),
+                hole=0.4
+            )])
+            fig.update_layout(height=300, margin=dict(l=0, r=0, t=0, b=0))
+            st.plotly_chart(fig, use_container_width=True)
+        
+        with col2:
+            st.subheader("Top Forwarders by Volume")
+            top_forwarders = [f"UF-{i:03d}" for i in range(1, 6)]
+            volumes = [random.randint(50000, 150000) for _ in range(5)]
+            
+            fig = go.Figure(go.Bar(
+                x=volumes,
+                y=top_forwarders,
+                orientation='h',
+                marker_color='#1E40AF'
+            ))
+            fig.update_layout(
+                height=300,
+                margin=dict(l=0, r=0, t=0, b=0),
+                xaxis_title="Logs/hour",
+                yaxis_title="Forwarder"
+            )
+            st.plotly_chart(fig, use_container_width=True)
+    
+    with tab3:
+        st.subheader("🔍 Log Inspector & Parser")
+        
+        if st.session_state.log_history:
+            selected_log = random.choice(st.session_state.log_history[-20:])
+            
+            col1, col2 = st.columns([2, 1])
+            
+            with col1:
+                st.markdown("##### 📄 Raw Log")
+                st.json(selected_log)
+            
+            with col2:
+                st.markdown("##### 🏷️ Extracted Fields")
+                st.markdown(f"""
+                - **Trace ID**: `{selected_log['trace_id']}`
+                - **Model**: `{selected_log['model']}`
+                - **Stage**: `{selected_log['stage']}`
+                - **User**: `{selected_log['user_id']}`
+                - **Status**: `{selected_log['status']}`
+                """)
+                
+                st.markdown("##### 🎯 Metadata")
+                st.markdown(f"""
+                - **Environment**: `production`
+                - **Region**: `us-west-2`
+                - **Cluster**: `ml-cluster-01`
+                - **Version**: `v2.4.1`
+                """)
+        else:
+            st.info("Start ingestion to see log details")
+    
+    with tab4:
+        st.subheader("📈 Ingestion Metrics & Analytics")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("##### Logs by Source Type")
+            sources = ["AI/ML Apps", "RAG Pipeline", "Infrastructure", "Security", "DevOps"]
+            counts = [45000, 32000, 28000, 15000, 8000]
+            
+            fig = go.Figure(data=[go.Pie(
+                labels=sources,
+                values=counts,
+                hole=0.3
+            )])
+            fig.update_layout(height=300, margin=dict(l=0, r=0, t=0, b=0))
+            st.plotly_chart(fig, use_container_width=True)
+        
+        with col2:
+            st.markdown("##### Ingestion Rate (last hour)")
+            minutes = list(range(60))
+            rates = [random.randint(2000, 4000) for _ in range(60)]
+            
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=minutes,
+                y=rates,
+                mode='lines',
+                fill='tozeroy',
+                line=dict(color='#8B5CF6'),
+                fillcolor='rgba(139, 92, 246, 0.2)'
+            ))
+            fig.update_layout(
+                height=300,
+                margin=dict(l=0, r=0, t=0, b=0),
+                xaxis_title="Minutes Ago",
+                yaxis_title="Logs/sec"
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+elif page == "⚙️ Layer 2: Processing":
+    st.header("⚙️ Layer 2: Real-Time Processing & Analytics")
+    
+    tab1, tab2, tab3 = st.tabs(["🔧 SPL Queries", "🤖 ML Analytics", "⚡ Alerting"])
+    
+    with tab1:
+        st.subheader("🔧 Search Processing Language (SPL) Console")
+        
+        # Predefined queries
+        query_templates = {
+            "Model Performance": "index=aiml_models | stats avg(latency_ms), avg(tokens_total), sum(cost_usd) by model_name",
+            "Hallucination Detection": "index=aiml_models | where confidence_score < 0.7 AND citation_count = 0 | stats count by model_name",
+            "RAG Chain": 'index=aiml_rag trace_id="xyz123" | transaction trace_id | table _time, stage, latency_ms',
+            "Cost by User": "index=aiml_models | stats sum(cost_usd) as total_cost by user_id | sort -total_cost",
+            "Error Rate": "index=aiml_models | stats count(eval(status='error')) as errors, count as total | eval error_rate=errors/total*100"
+        }
+        
+        selected_template = st.selectbox("Select Query Template", list(query_templates.keys()))
+        
+        query = st.text_area("SPL Query", value=query_templates[selected_template], height=100)
+        
+        col1, col2, col3 = st.columns([1, 1, 4])
+        with col1:
+            run_query = st.button("▶️ Run Query", type="primary")
+        with col2:
+            st.button("💾 Save Query")
+        
+        if run_query:
+            with st.spinner("Executing query..."):
+                time.sleep(1)
+                
+                st.success("✅ Query completed in 0.847 seconds")
+                
+                # Generate results based on query type
+                if "Model Performance" in selected_template:
+                    results = pd.DataFrame({
+                        "model_name": ["GPT-4", "Claude-3", "Llama-2", "Gemini-Pro", "Mistral-7B"],
+                        "avg(latency_ms)": [850, 920, 1200, 780, 950],
+                        "avg(tokens_total)": [1250, 1180, 890, 1320, 1050],
+                        "sum(cost_usd)": [234.56, 189.23, 145.67, 267.89, 178.90]
+                    })
+                elif "Hallucination" in selected_template:
+                    results = pd.DataFrame({
+                        "model_name": ["GPT-4", "Claude-3", "Llama-2"],
+                        "count": [145, 87, 234]
+                    })
+                elif "Cost by User" in selected_template:
+                    results = pd.DataFrame({
+                        "user_id": ["data_science_team", "user_001", "ml_ops_team", "user_002", "user_003"],
+                        "total_cost": [456.78, 234.56, 189.45, 145.67, 98.34]
+                    })
+                else:
+                    results = pd.DataFrame({
+                        "_time": pd.date_range(end=datetime.now(), periods=5, freq='1S'),
+                        "stage": ["ingestion", "embedding", "retrieval", "inference", "post-processing"],
+                        "latency_ms": [35, 150, 60, 2100, 18]
+                    })
+                
+                st.dataframe(results, use_container_width=True, hide_index=True)
+                
+                # Visualization
+                if "Model Performance" in selected_template or "Hallucination" in selected_template:
+                    fig = px.bar(results, x=results.columns[0], y=results.columns[1], 
+                                title="Query Results Visualization")
+                    st.plotly_chart(fig, use_container_width=True)
+    
+    with tab2:
+        st.subheader("🤖 Machine Learning Toolkit (MLTK)")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("##### 🎯 Anomaly Detection")
+            
+            # Generate time series with anomalies
+            hours = pd.date_range(end=datetime.now(), periods=48, freq='H')
+            normal_latency = [random.uniform(800, 1200) for _ in range(48)]
+            # Inject anomalies
+            normal_latency[15] = 3500
+            normal_latency[32] = 3200
+            normal_latency[40] = 3800
+            
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=hours,
+                y=normal_latency,
+                mode='lines+markers',
+                name='Latency',
+                line=dict(color='#3B82F6', width=2),
+                marker=dict(
+                    size=[15 if l > 2000 else 5 for l in normal_latency],
+                    color=['red' if l > 2000 else '#3B82F6' for l in normal_latency]
+                )
+            ))
+            fig.add_hline(y=2000, line_dash="dash", line_color="red", 
+                         annotation_text="Anomaly Threshold")
+            fig.update_layout(
+                height=300,
+                margin=dict(l=0, r=0, t=30, b=0),
+                title="Latency Anomaly Detection (48h)",
+                xaxis_title="Time",
+                yaxis_title="Latency (ms)"
+            )
+            st.plotly_chart(fig, use_container_width=True)
+            
+            st.info("🔍 Detected 3 anomalies in the last 48 hours")
+        
+        with col2:
+            st.markdown("##### 📊 Model Drift Detection")
+            
+            features = ["Feature_A", "Feature_B", "Feature_C", "Feature_D", "Feature_E"]
+            drift_scores = [0.05, 0.12, 0.18, 0.08, 0.22]
+            
+            fig = go.Figure()
+            fig.add_trace(go.Bar(
+                y=features,
+                x=drift_scores,
+                orientation='h',
+                marker=dict(
+                    color=drift_scores,
+                    colorscale=[[0, 'green'], [0.5, 'yellow'], [1, 'red']],
+                    showscale=True,
+                    colorbar=dict(title="Drift Score")
+                )
+            ))
+            fig.add_vline(x=0.15, line_dash="dash", line_color="red",
+                         annotation_text="Warning Threshold")
+            fig.update_layout(
+                height=300,
+                margin=dict(l=0, r=0, t=30, b=0),
+                title="Feature Drift Analysis",
+                xaxis_title="Drift Score (KS Statistic)",
+                yaxis_title="Feature"
+            )
+            st.plotly_chart(fig, use_container_width=True)
+            
+            st.warning("⚠️ Features C and E exceed drift threshold")
+        
+        st.markdown("---")
+        
+        st.markdown("##### 📈 Predictive Analytics - Capacity Forecast")
+        
+        days = pd.date_range(start=datetime.now() - timedelta(days=30), 
+                            end=datetime.now() + timedelta(days=7), freq='D')
+        historical = [random.uniform(80, 120) for _ in range(30)]
+        forecast = [random.uniform(110, 150) for _ in range(8)]
+        
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=days[:30],
+            y=historical,
+            mode='lines',
+            name='Historical',
+            line=dict(color='#1E40AF', width=2)
+        ))
+        fig.add_trace(go.Scatter(
+            x=days[30:],
+            y=forecast,
+            mode='lines',
+            name='Forecast',
+            line=dict(color='#F59E0B', width=2, dash='dash')
+        ))
+        fig.add_hline(y=140, line_dash="dash", line_color="red",
+                     annotation_text="Capacity Limit")
+        fig.update_layout(
+            height=300,
+            margin=dict(l=0, r=0, t=0, b=0),
+            xaxis_title="Date",
+            yaxis_title="Ingestion Volume (GB/day)",
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    
+    with tab3:
+        st.subheader("⚡ Alert Manager & Notification System")
+        
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            st.markdown("##### 🔔 Active Alerts")
+            
+            alerts = [
+                {
+                    "severity": "🔴 CRITICAL",
+                    "title": "High Hallucination Rate - GPT-4",
+                    "description": "Hallucination rate exceeded 15% threshold",
+                    "value": "18.3%",
+                    "time": "2 minutes ago",
+                    "action": "PagerDuty incident created"
+                },
+                {
+                    "severity": "🟡 WARNING",
+                    "title": "Increased Latency - Claude-3",
+                    "description": "P95 latency above baseline",
+                    "value": "1240ms (baseline: 850ms)",
+                    "time": "15 minutes ago",
+                    "action": "Slack notification sent"
+                },
+                {
+                    "severity": "🟡 WARNING",
+                    "title": "Cost Anomaly Detected",
+                    "description": "Hourly cost spike detected",
+                    "value": "$125/hr (avg: $87/hr)",
+                    "time": "32 minutes ago",
+                    "action": "Email sent to FinOps team"
+                }
+            ]
+            
+            for alert in alerts:
+                severity_color = {
+                    "🔴 CRITICAL": "error-box",
+                    "🟡 WARNING": "warning-box",
+                    "🟢 INFO": "success-box"
+                }
+                
+                st.markdown(f"""
+                <div class="{severity_color[alert['severity']]}">
+                    <strong>{alert['severity']}: {alert['title']}</strong><br/>
+                    {alert['description']}<br/>
+                    <strong>Value:</strong> {alert['value']}<br/>
+                    <small>⏰ {alert['time']} | 📤 {alert['action']}</small>
+                </div>
+                """, unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown("##### 📊 Alert Statistics")
+            
+            alert_stats = pd.DataFrame({
+                "Type": ["Critical", "Warning", "Info"],
+                "Last 24h": [12, 45, 156],
+                "Last 7d": [89, 324, 1245]
+            })
+            
+            st.dataframe(alert_stats, use_container_width=True, hide_index=True)
+            
+            st.markdown("##### 🎯 MTTR")
+            st.metric("Mean Time To Resolve", "12.3 min", delta="-2.1 min")
+            
+            st.markdown("##### 📨 Notification Channels")
+            st.markdown("""
+            - 🔔 PagerDuty: **Enabled**
+            - 💬 Slack: **Enabled**
+            - 📧 Email: **Enabled**
+            - 📱 Teams: **Enabled**
+            """)
+
+elif page == "💾 Layer 3: Storage":
+    st.header("💾 Layer 3: Data Storage & Lifecycle Management")
+    
+    tab1, tab2 = st.tabs(["🗄️ Storage Tiers", "📋 Retention Policies"])
+    
+    with tab1:
+        st.subheader("🗄️ Splunk Indexer Cluster - Storage Tier Status")
+        
+        # Storage overview metrics
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Hot Storage", "2.4 TB", delta="+124 GB")
+        with col2:
+            st.metric("Warm Storage", "8.7 TB", delta="+89 GB")
+        with col3:
+            st.metric("Cold Storage", "45.2 TB", delta="+234 GB")
+        with col4:
+            st.metric("Frozen/Archive", "234.5 TB", delta="+1.2 TB")
+        
+        st.markdown("---")
+        
+        # Storage tier details
+        tier_data = {
+            "Tier": ["Hot (NVMe SSD)", "Warm (SATA SSD)", "Cold (S3)", "Frozen (Glacier)"],
+            "Capacity": ["5 TB", "15 TB", "100 TB", "500 TB"],
+            "Used": ["2.4 TB", "8.7 TB", "45.2 TB", "234.5 TB"],
+            "Usage %": ["48%", "58%", "45%", "47%"],
+            "Retention": ["7-30 days", "30-90 days", "90-365 days", "1-7 years"],
+            "Search Speed": ["< 1s", "2-5s", "10-30s", "1-12h"],
+            "Replication": "3x", "2x", "1x", "1x"],
+            "Cost/GB/Month": ["$0.15", "$0.08", "$0.023", "$0.004"]
+        }
+        
+        df = pd.DataFrame(tier_data)
+        st.dataframe(df, use_container_width=True, hide_index=True)
+        
+        st.markdown("---")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("##### 📊 Storage Distribution")
+            
+            sizes = [2.4, 8.7, 45.2, 234.5]
+            labels = ["Hot", "Warm", "Cold", "Frozen"]
+            
+            fig = go.Figure(data=[go.Pie(
+                labels=labels,
+                values=sizes,
+                hole=0.4,
+                marker=dict(colors=['#EF4444', '#F59E0B', '#3B82F6', '#8B5CF6'])
+            )])
+            fig.update_layout(height=300, margin=dict(l=0, r=0, t=0, b=0))
+            st.plotly_chart(fig, use_container_width=True)
+        
+        with col2:
+            st.markdown("##### 📈 Storage Growth Trend")
+            
+            days = pd.date_range(end=datetime.now(), periods=30, freq='D')
+            growth = np.cumsum([random.uniform(50, 150) for _ in range(30)])
+            
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=days,
+                y=growth,
+                mode='lines',
+                fill='tozeroy',
+                line=dict(color='#1E40AF', width=3),
+                fillcolor='rgba(30, 64, 175, 0.2)'
+            ))
+            fig.update_layout(
+                height=300,
+                margin=dict(l=0, r=0, t=0, b=0),
+                xaxis_title="Date",
+                yaxis_title="Total Storage (TB)"
+            )
+            st.plotly_chart(fig, use_container_width=True)
+        
+        st.markdown("---")
+        
+        st.markdown("##### 🔄 Data Lifecycle Automation")
+        
+        st.info("""
+        **Automated Data Movement:**
+        - **Hot → Warm**: After 7 days (AI/ML logs), 3 days (Infrastructure)
+        - **Warm → Cold**: After 30 days (Application logs), 60 days (Model logs)
+        - **Cold → Frozen**: After 90 days (Application), 180 days (Model logs)
+        - **Frozen → Purge**: After retention period expires (configurable by index)
+        """)
+    
+    with tab2:
+        st.subheader("📋 Data Retention Policies by Index")
+        
+        retention_data = {
+            "Index": ["aiml_models", "aiml_training", "aiml_rag", "infrastructure", "security_audit", "devops_ci_cd"],
+            "Hot": ["14 days", "7 days", "14 days", "3 days", "30 days", "7 days"],
+            "Warm": ["60 days", "30 days", "60 days", "14 days", "90 days", "30 days"],
+            "Cold": ["180 days", "90 days", "180 days", "90 days", "365 days", "90 days"],
+            "Archive": ["3 years", "1 year", "3 years", "Purge", "7 years", "1 year"],
+            "Total Size": ["12.5 TB", "8.3 TB", "15.7 TB", "45.2 TB", "23.4 TB", "5.6 TB"],
+            "Compliance": ["SOC2", "Internal", "SOC2", "Internal", "SOC2, HIPAA, GDPR", "Internal"]
+        }
+        
+        df = pd.DataFrame(retention_data)
+        st.dataframe(df, use_container_width=True, hide_index=True)
+        
+        st.markdown("---")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("##### 💰 Storage Cost by Index")
+            
+            indices = list(retention_data["Index"])
+            costs = [1245, 834, 1570, 452, 2340, 560]
+            
+            fig = go.Figure()
+            fig.add_trace(go.Bar(
+                x=indices,
+                y=costs,
+                marker_color='#8B5CF6',
+                text=[f"${c}" for c in costs],
+                textposition='outside'
+            ))
+            fig.update_layout(
+                height=300,
+                margin=dict(l=0, r=0, t=0, b=0),
+                xaxis_title="Index",
+                yaxis_title="Monthly Cost (USD)",
+                xaxis_tickangle=-45
+            ))
+            st.plotly_chart(fig, use_container_width=True)
+        
+        with col2:
+            st.markdown("##### 🔄 Data Movement Events (Last 24h)")
+            
+            movements = {
+                "Hot → Warm": 2345,
+                "Warm → Cold": 1876,
+                "Cold → Frozen": 456,
+                "Frozen → Purge": 89
+            }
+            
+            fig = go.Figure(data=[go.Pie(
+                labels=list(movements.keys()),
+                values=list(movements.values()),
+                hole=0.3
+            )])
+            fig.update_layout(height=300, margin=dict(l=0, r=0, t=0, b=0))
+            st.plotly_chart(fig, use_container_width=True)
+
+elif page == "📊 Layer 4: Consumption":
+    st.header("📊 Layer 4: Consumption, Visualization & Integration")
+    
+    tab1, tab2, tab3 = st.tabs(["📈 Dashboards", "🔌 API Explorer", "🔗 Integrations"])
+    
+    with tab1:
+        st.subheader("📈 Pre-built Dashboards")
+        
+        dashboard_type = st.selectbox(
+            "Select Dashboard",
+            ["AI/ML Operations", "RAG Pipeline", "Infrastructure", "Security & Compliance", "Cost Analytics"]
+        )
+        
+        if dashboard_type == "AI/ML Operations":
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.metric("Total Inferences (24h)", "1.2M", delta="+45K")
+            with col2:
+                st.metric("Avg Latency", "847ms", delta="-23ms")
+            with col3:
+                st.metric("Cost per 1K Tokens", "$0.0023", delta="-$0.0002")
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                # Model comparison
+                models = ["GPT-4", "Claude-3", "Llama-2", "Gemini-Pro", "Mistral-7B"]
+                metrics = {
+                    "Latency (ms)": [850, 920, 1200, 780, 950],
+                    "Cost ($/1K)": [0.0030, 0.0025, 0.0015, 0.0028, 0.0020],
+                    "Quality Score": [0.94, 0.96, 0.87, 0.93, 0.89]
+                }
+                
+                df = pd.DataFrame(metrics, index=models)
+                st.dataframe(df, use_container_width=True)
+            
+            with col2:
+                # Token usage over time
+                hours = list(range(24))
+                tokens = [random.randint(40000, 60000) for _ in range(24)]
+                
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(
+                    x=hours,
+                    y=tokens,
+                    mode='lines',
+                    fill='tozeroy',
+                    line=dict(color='#8B5CF6', width=2)
+                ))
+                fig.update_layout(
+                    title="Token Usage (Last 24h)",
+                    height=250,
+                    margin=dict(l=0, r=0, t=30, b=0),
+                    xaxis_title="Hour",
+                    yaxis_title="Tokens"
+                )
+                st.plotly_chart(fig, use_container_width=True)
+        
+        elif dashboard_type == "RAG Pipeline":
+            st.markdown("##### 🔄 RAG Pipeline End-to-End Performance")
+            
+            stages = ["Ingestion", "Embedding", "Retrieval", "Prompt", "Inference", "Post-Proc"]
+            current_latency = [35, 150, 60, 12, 2100, 18]
+            baseline_latency = [30, 140, 55, 10, 2000, 15]
+            
+            fig = go.Figure()
+            fig.add_trace(go.Bar(name='Current', x=stages, y=current_latency, marker_color='#3B82F6'))
+            fig.add_trace(go.Bar(name='Baseline', x=stages, y=baseline_latency, marker_color='#10B981'))
+            fig.update_layout(
+                height=300,
+                margin=dict(l=0, r=0, t=0, b=0),
+                barmode='group',
+                xaxis_title="Stage",
+                yaxis_title="Latency (ms)"
+            )
+            st.plotly_chart(fig, use_container_width=True)
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Total Chain Latency", "2,375ms", delta="+125ms")
+            with col2:
+                st.metric("Retrieval Accuracy", "94.3%", delta="+1.2%")
+            with col3:
+                st.metric("Citation Coverage", "87.5%", delta="+2.3%")
+        
+        elif dashboard_type == "Cost Analytics":
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("##### 💰 Cost by Team (Last 30 Days)")
+                
+                teams = ["Data Science", "ML Ops", "Product", "Engineering", "Research"]
+                costs = [4567, 3234, 2890, 2345, 1890]
+                
+                fig = go.Figure(data=[go.Pie(
+                    labels=teams,
+                    values=costs,
+                    hole=0.4
+                )])
+                fig.update_layout(height=300, margin=dict(l=0, r=0, t=0, b=0))
+                st.plotly_chart(fig, use_container_width=True)
+            
+            with col2:
+                st.markdown("##### 📈 Daily Cost Trend")
+                
+                days = pd.date_range(end=datetime.now(), periods=30, freq='D')
+                daily_costs = [random.uniform(400, 600) for _ in range(30)]
+                
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(
+                    x=days,
+                    y=daily_costs,
+                    mode='lines+markers',
+                    line=dict(color='#F59E0B', width=2)
+                ))
+                fig.add_hline(y=500, line_dash="dash", line_color="red",
+                             annotation_text="Budget Threshold")
+                fig.update_layout(
+                    height=300,
+                    margin=dict(l=0, r=0, t=0, b=0),
+                    xaxis_title="Date",
+                    yaxis_title="Cost (USD)"
+                )
+                st.plotly_chart(fig, use_container_width=True)
+    
+    with tab2:
+        st.subheader("🔌 Splunk REST API Explorer")
+        
+        endpoint = st.selectbox(
+            "Select API Endpoint",
+            [
+                "GET /services/search/jobs - Create search job",
+                "GET /services/search/jobs/{sid}/results - Get search results",
+                "POST /services/data/indexes - Manage indexes",
+                "GET /services/saved/searches - List saved searches",
+                "GET /services/server/info - Server information"
+            ]
+        )
+        
+        st.markdown("##### 📋 Request")
+        
+        if "search/jobs" in endpoint and "results" not in endpoint:
+            request_body = {
+                "search": "search index=aiml_models | stats avg(latency_ms) by model_name",
+                "earliest_time": "-24h",
+                "latest_time": "now",
+                "output_mode": "json"
+            }
+        else:
+            request_body = {
+                "output_mode": "json",
+                "count": 100
+            }
+        
+        st.json(request_body)
+        
+        if st.button("🚀 Execute API Call", type="primary"):
+            with st.spinner("Executing API request..."):
+                time.sleep(1)
+                
+                st.success("✅ API call successful (Response time: 234ms)")
+                
+                st.markdown("##### 📥 Response")
+                
+                response = {
+                    "status": "success",
+                    "execution_time": "0.234s",
+                    "results": [
+                        {"model_name": "GPT-4", "avg_latency_ms": 850},
+                        {"model_name": "Claude-3", "avg_latency_ms": 920},
+                        {"model_name": "Llama-2", "avg_latency_ms": 1200}
+                    ],
+                    "result_count": 3
+                }
+                
+                st.json(response)
+                
+                st.markdown("##### 💻 Python SDK Example")
+                st.code("""
+import splunklib.client as client
+
+# Connect to Splunk
+service = client.connect(
+    host="splunk.example.com",
+    port=8089,
+    username="admin",
+    token="your-token-here"
+)
+
+# Create search job
+job = service.jobs.create(
+    "search index=aiml_models | stats avg(latency_ms)"
+)
+
+# Get results
+for result in job.results():
+    print(result)
+                """, language="python")
+    
+    with tab3:
+        st.subheader("🔗 External System Integrations")
+        
+        integrations = {
+            "ServiceNow": {
+                "status": "🟢 Connected",
+                "description": "ITSM Ticketing",
+                "metrics": {"Incidents Created (24h)": 12, "Avg Resolution Time": "2.3 hours"}
+            },
+            "PagerDuty": {
+                "status": "🟢 Connected",
+                "description": "Incident Management",
+                "metrics": {"Alerts Sent (24h)": 45, "On-Call Engineers": 8}
+            },
+            "Slack": {
+                "status": "🟢 Connected",
+                "description": "ChatOps Notifications",
+                "metrics": {"Messages Sent (24h)": 234, "Channels": 12}
+            },
+            "Grafana": {
+                "status": "🟢 Connected",
+                "description": "Metrics Visualization",
+                "metrics": {"Dashboards": 23, "Active Users": 156}
+            },
+            "Datadog": {
+                "status": "🟢 Connected",
+                "description": "APM & Tracing",
+                "metrics": {"Traces/sec": 2345, "Services Monitored": 45}
+            },
+            "Azure AD": {
+                "status": "🟢 Connected",
+                "description": "SSO Authentication",
+                "metrics": {"Active Users": 234, "Auth Requests (24h)": 5678}
+            }
+        }
+        
+        for name, details in integrations.items():
+            with st.expander(f"{details['status']} **{name}** - {details['description']}", expanded=False):
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("**Configuration**")
+                    st.markdown(f"- Status: {details['status']}")
+                    st.markdown(f"- Type: {details['description']}")
+                    st.markdown("- Authentication: ✅ OAuth2")
+                    st.markdown("- Last Sync: 2 minutes ago")
+                
+                with col2:
+                    st.markdown("**Metrics (Last 24h)**")
+                    for metric, value in details['metrics'].items():
+                        st.markdown(f"- {metric}: **{value}**")
+
+elif page == "🔗 End-to-End Tracing":
+    st.header("🔗 End-to-End Request Tracing")
+    
+    st.info("""
+    **W3C Trace Context Implementation** - Every request gets a unique trace ID that propagates 
+    through all services, enabling complete chain reconstruction from API gateway to final response.
+    """)
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        if st.button("🎲 Generate New RAG Chain Trace", type="primary", use_container_width=True):
+            trace_id, chain = generate_rag_chain()
+            st.session_state.current_trace = (trace_id, chain)
+    
+    with col2:
+        st.code("traceparent: 00-4bf92f...-01", language="text")
+    
+    if 'current_trace' in st.session_state:
+        trace_id, chain = st.session_state.current_trace
+        
+        st.markdown(f"### 🔍 Trace ID: `{trace_id}`")
+        
+        # Timeline visualization
+        st.markdown("##### ⏱️ Execution Timeline")
+        
+        # Create Gantt-like chart
+        start_times = []
+        durations = []
+        cumulative_time = 0
+        
+        for step in chain:
+            start_times.append(cumulative_time)
+            durations.append(step['latency_ms'])
+            cumulative_time += step['latency_ms']
+        
+        fig = go.Figure()
+        
+        for i, step in enumerate(chain):
+            fig.add_trace(go.Bar(
+                name=step['stage'],
+                x=[durations[i]],
+                y=[step['stage']],
+                orientation='h',
+                marker=dict(color=f'hsl({i*60}, 70%, 50%)'),
+                text=f"{durations[i]}ms",
+                textposition='inside',
+                hovertemplate=f"<b>{step['stage']}</b><br>" +
+                             f"Service: {step['service']}<br>" +
+                             f"Latency: {step['latency_ms']}ms<br>" +
+                             f"Status: {step['status']}<br>" +
+                             f"<extra></extra>"
+            ))
+        
+        fig.update_layout(
+            height=350,
+            margin=dict(l=0, r=0, t=0, b=0),
+            barmode='stack',
+            showlegend=False,
+            xaxis_title="Time (ms)",
+            yaxis_title="Stage"
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Detailed breakdown
+        st.markdown("##### 📋 Stage Details")
+        
+        chain_df = pd.DataFrame(chain)
+        chain_df = chain_df[['timestamp', 'stage', 'service', 'latency_ms', 'status']]
+        st.dataframe(chain_df, use_container_width=True, hide_index=True)
+        
+        # Summary metrics
+        col1, col2, col3, col4 = st.columns(4)
+        
+        total_latency = sum(step['latency_ms'] for step in chain)
+        
+        with col1:
+            st.metric("Total Latency", f"{total_latency}ms")
+        with col2:
+            st.metric("Stages Completed", len(chain))
+        with col3:
+            st.metric("Success Rate", "100%")
+        with col4:
+            slowest = max(chain, key=lambda x: x['latency_ms'])
+            st.metric("Slowest Stage", slowest['stage'])
+        
+        st.markdown("---")
+        
+        # SPL Query to retrieve this trace
+        st.markdown("##### 💻 SPL Query to Reconstruct This Chain")
+        
+        spl_query = f"""index=aiml_rag trace_id="{trace_id}" 
+| transaction trace_id maxspan=30s 
+| table _time, service, stage, latency_ms, status
+| sort _time"""
+        
+        st.code(spl_query, language="spl")
+        
+        # Raw log samples
+        with st.expander("📄 View Raw Log Samples"):
+            for step in chain:
+                st.json({
+                    "timestamp": step['timestamp'],
+                    "trace_id": trace_id,
+                    "service": step['service'],
+                    "stage": step['stage'],
+                    "latency_ms": step['latency_ms'],
+                    "status": step['status'],
+                    "environment": "production",
+                    "region": "us-west-2"
+                })
+
+else:  # Real-time Monitoring
+    st.header("⚡ Real-time System Monitoring")
+    
+    st.markdown("##### 🎛️ Live System Metrics")
+    
+    # Auto-refresh
+    auto_refresh = st.checkbox("🔄 Auto-refresh (5 seconds)", value=True)
+    
+    if auto_refresh:
+        time.sleep(5)
+        st.rerun()
+    
+    # Real-time metrics
+    col1, col2, col3, col4, col5 = st.columns(5)
+    
+    with col1:
+        st.metric("Ingestion Rate", f"{random.randint(2500, 3500)}/s", delta=f"+{random.randint(50, 200)}")
+    with col2:
+        st.metric("Query Load", f"{random.randint(150, 250)}/s", delta=f"+{random.randint(-20, 30)}")
+    with col3:
+        st.metric("Indexer CPU", f"{random.randint(45, 75)}%", delta=f"+{random.randint(-5, 10)}%")
+    with col4:
+        st.metric("Network I/O", f"{random.randint(800, 1200)} Mbps", delta=f"+{random.randint(-50, 100)}")
+    with col5:
+        st.metric("Active Queries", f"{random.randint(50, 100)}", delta=f"+{random.randint(-10, 15)}")
+    
+    st.markdown("---")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("##### 📊 Live Ingestion Rate")
+        
+        # Generate live data
+        seconds = list(range(60))
+        rates = [random.randint(2000, 4000) for _ in range(60)]
+        
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=seconds,
+            y=rates,
+            mode='lines',
+            fill='tozeroy',
+            line=dict(color='#10B981', width=2),
+            fillcolor='rgba(16, 185, 129, 0.2)'
+        ))
+        fig.update_layout(
+            height=300,
+            margin=dict(l=0, r=0, t=0, b=0),
+            xaxis_title="Seconds Ago",
+            yaxis_title="Events/sec"
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    
+    with col2:
+        st.markdown("##### ⚡ Query Response Time")
+        
+        seconds = list(range(60))
+        response_times = [random.randint(200, 1000) for _ in range(60)]
+        
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=seconds,
+            y=response_times,
+            mode='lines',
+            line=dict(color='#3B82F6', width=2)
+        ))
+        fig.add_hline(y=800, line_dash="dash", line_color="red",
+                     annotation_text="SLA Threshold")
+        fig.update_layout(
+            height=300,
+            margin=dict(l=0, r=0, t=0, b=0),
+            xaxis_title="Seconds Ago",
+            yaxis_title="Response Time (ms)"
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    
+    st.markdown("---")
+    
+    st.markdown("##### 🖥️ Cluster Health")
+    
+    # Cluster status
+    cluster_data = {
+        "Component": ["Search Head 1", "Search Head 2", "Search Head 3", "Indexer 1", "Indexer 2", 
+                     "Indexer 3", "Indexer 4", "Master Node", "License Server", "Deployment Server"],
+        "Status": ["🟢 Healthy", "🟢 Healthy", "🟢 Healthy", "🟢 Healthy", "🟢 Healthy",
+                  "🟢 Healthy", "🟡 Warning", "🟢 Healthy", "🟢 Healthy", "🟢 Healthy"],
+        "CPU %": [f"{random.randint(30, 70)}%" for _ in range(10)],
+        "Memory %": [f"{random.randint(40, 80)}%" for _ in range(10)],
+        "Disk %": [f"{random.randint(20, 60)}%" for _ in range(10)],
+        "Network": [f"{random.randint(500, 1500)} Mbps" for _ in range(10)]
+    }
+    
+    df = pd.DataFrame(cluster_data)
+    st.dataframe(df, use_container_width=True, hide_index=True)
+
+# Footer
+st.markdown("---")
+st.markdown("""
+<div style='text-align: center; color: #6B7280; padding: 2rem 0;'>
+    <p><strong>AI/ML Observability Platform</strong> | Prototype v1.0</p>
+    <p>Powered by Splunk | Built for demonstration purposes</p>
+</div>
+""", unsafe_allow_html=True)
