@@ -261,6 +261,8 @@ if 'show_help' not in st.session_state:
     st.session_state.show_help = True
 if 'tour_step' not in st.session_state:
     st.session_state.tour_step = 0
+if 'sample_logs_generated' not in st.session_state:
+    st.session_state.sample_logs_generated = False
 
 # Data generation functions
 def generate_log_entry():
@@ -337,6 +339,110 @@ def generate_rag_chain():
     ]
     
     return trace_id, chain
+def generate_source_specific_log(source_category):
+    """Generate logs specific to each of the six source categories"""
+    
+    trace_id = f"{random.randint(1000, 9999)}-{random.randint(1000, 9999)}-{random.randint(1000, 9999)}"
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+    
+    if source_category == "🤖 AI/ML Applications":
+        log = {
+            "timestamp": timestamp,
+            "source_category": "AI/ML Applications",
+            "source_type": random.choice(["model_serving", "training_job", "data_pipeline", "inference_api"]),
+            "trace_id": trace_id,
+            "model": random.choice(["GPT-4", "Claude-3", "Llama-2", "Gemini-Pro", "Mistral-7B"]),
+            "operation": random.choice(["inference", "batch_prediction", "online_serving"]),
+            "latency_ms": random.randint(50, 3000),
+            "tokens_input": random.randint(100, 2000),
+            "tokens_output": random.randint(50, 1000),
+            "cost_usd": round(random.uniform(0.001, 0.05), 4),
+            "status": random.choice(["success", "success", "success", "warning"]),
+            "gpu_utilization": f"{random.randint(40, 95)}%"
+        }
+    
+    elif source_category == "🔗 RAG Pipeline":
+        log = {
+            "timestamp": timestamp,
+            "source_category": "RAG Pipeline",
+            "trace_id": trace_id,
+            "stage": random.choice(["ingestion", "embedding", "retrieval", "prompt_construction", "llm_inference", "post_processing"]),
+            "document_id": f"doc_{random.randint(1000, 9999)}",
+            "vector_db": "Pinecone",
+            "embedding_model": "text-embedding-ada-002",
+            "retrieval_count": random.randint(3, 10),
+            "similarity_score": round(random.uniform(0.7, 0.99), 3),
+            "latency_ms": random.randint(20, 2500),
+            "chunk_size": random.randint(256, 1024),
+            "status": random.choice(["success", "success", "success"])
+        }
+    
+    elif source_category == "📊 Model Metrics":
+        log = {
+            "timestamp": timestamp,
+            "source_category": "Model Metrics",
+            "trace_id": trace_id,
+            "model": random.choice(["GPT-4", "Claude-3", "Llama-2", "Gemini-Pro"]),
+            "metric_type": random.choice(["performance", "quality", "cost", "reliability"]),
+            "latency_p50": random.randint(400, 800),
+            "latency_p95": random.randint(1000, 2000),
+            "latency_p99": random.randint(2000, 3500),
+            "tokens_per_sec": random.randint(50, 150),
+            "cost_per_1k_tokens": round(random.uniform(0.001, 0.005), 4),
+            "hallucination_score": round(random.uniform(0.01, 0.15), 3),
+            "drift_detected": random.choice([False, False, False, True]),
+            "confidence_score": round(random.uniform(0.75, 0.98), 3)
+        }
+    
+    elif source_category == "👥 User Interactions":
+        log = {
+            "timestamp": timestamp,
+            "source_category": "User Interactions",
+            "trace_id": trace_id,
+            "user_id": random.choice(["user_001", "user_002", "user_003", "data_science_team", "ml_ops_team"]),
+            "action": random.choice(["login", "query", "config_change", "data_access", "model_deploy", "dashboard_view"]),
+            "session_id": f"sess_{random.randint(10000, 99999)}",
+            "ip_address": f"192.168.{random.randint(1, 255)}.{random.randint(1, 255)}",
+            "user_agent": "Mozilla/5.0 (Platform)",
+            "click_path": random.choice(["/dashboard", "/models", "/settings", "/logs", "/alerts"]),
+            "duration_sec": random.randint(5, 300),
+            "status": random.choice(["success", "success", "success", "failed"])
+        }
+    
+    elif source_category == "🖥️ Infrastructure":
+        log = {
+            "timestamp": timestamp,
+            "source_category": "Infrastructure",
+            "trace_id": trace_id,
+            "host": f"k8s-node-{random.randint(1, 20)}",
+            "component": random.choice(["api-gateway", "model-server", "database", "cache", "load-balancer"]),
+            "event_type": random.choice(["deployment", "restart", "scale", "failure", "config_change"]),
+            "cpu_percent": random.randint(20, 90),
+            "memory_mb": random.randint(1024, 8192),
+            "disk_io_mbps": random.randint(10, 500),
+            "network_mbps": random.randint(50, 1000),
+            "pod_count": random.randint(3, 50),
+            "status": random.choice(["healthy", "healthy", "healthy", "degraded"])
+        }
+    
+    else:  # 🔒 Governance & Compliance
+        log = {
+            "timestamp": timestamp,
+            "source_category": "Governance & Compliance",
+            "trace_id": trace_id,
+            "policy_type": random.choice(["data_privacy", "model_fairness", "audit_trail", "regulatory"]),
+            "policy_id": f"POL-{random.randint(100, 999)}",
+            "enforcement_action": random.choice(["allow", "allow", "allow", "block", "alert"]),
+            "compliance_framework": random.choice(["GDPR", "HIPAA", "SOC2", "PCI-DSS"]),
+            "anomaly_detected": random.choice([False, False, False, True]),
+            "risk_level": random.choice(["low", "low", "medium", "high"]),
+            "pii_detected": random.choice([False, False, True]),
+            "audit_required": random.choice([True, False, False]),
+            "status": random.choice(["compliant", "compliant", "compliant", "violation"])
+        }
+    
+    return log
+
 
 def show_help_bubble(message, key=None):
     """Display an animated help bubble"""
@@ -681,96 +787,363 @@ elif page == "📥 Layer 1: Log Ingestion":
     
     st.header("📥 Layer 1: Log Ingestion & Collection Infrastructure")
     
-    tab1, tab2, tab3, tab4 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "🎯 Six Log Sources",
         "🎮 Live Simulator", 
         "📊 Forwarder Status", 
         "🔍 Log Inspector", 
         "📈 Metrics"
     ])
-    
+
+    # Tab 1: Six Log Sources
     with tab1:
-        st.subheader("🎮 Real-time Log Ingestion Simulator")
+        st.subheader("🎯 Six Primary Log Source Categories")
         
         if st.session_state.show_help:
-            show_help_bubble("🎮 Click 'Start Ingestion' to simulate real-time log collection from multiple sources. Watch the metrics update live!")
+            show_info_card(
+                "📚 Understanding the Six Log Sources",
+                "This platform captures logs from six distinct source categories, each providing unique "
+                "insights into your AI/ML operations. Click on each source below to see sample logs and learn more."
+            )
         
-        col1, col2, col3 = st.columns(3)
+        # Visual Architecture Diagram
+        st.markdown("##### 🏗️ Log Collection Architecture")
+        
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); 
+                    padding: 2rem; border-radius: 12px; margin: 1rem 0;'>
+            <div style='text-align: center; margin-bottom: 1.5rem;'>
+                <h3 style='color: #1e40af; margin: 0;'>Data Flow: Sources → Forwarders → Splunk Platform</h3>
+            </div>
+            <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;'>
+                <div style='background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #3b82f6;'>
+                    <div style='font-size: 1.5rem; margin-bottom: 0.5rem;'>🤖</div>
+                    <strong style='color: #1e40af;'>AI/ML Applications</strong><br/>
+                    <small style='color: #64748b;'>Model serving, training, pipelines</small>
+                </div>
+                <div style='background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #8b5cf6;'>
+                    <div style='font-size: 1.5rem; margin-bottom: 0.5rem;'>🔗</div>
+                    <strong style='color: #7c3aed;'>RAG Pipeline</strong><br/>
+                    <small style='color: #64748b;'>Complete chain tracing</small>
+                </div>
+                <div style='background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #10b981;'>
+                    <div style='font-size: 1.5rem; margin-bottom: 0.5rem;'>📊</div>
+                    <strong style='color: #059669;'>Model Metrics</strong><br/>
+                    <small style='color: #64748b;'>Performance & quality KPIs</small>
+                </div>
+                <div style='background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #f59e0b;'>
+                    <div style='font-size: 1.5rem; margin-bottom: 0.5rem;'>👥</div>
+                    <strong style='color: #d97706;'>User Interactions</strong><br/>
+                    <small style='color: #64748b;'>Behavioral & audit data</small>
+                </div>
+                <div style='background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #ef4444;'>
+                    <div style='font-size: 1.5rem; margin-bottom: 0.5rem;'>🖥️</div>
+                    <strong style='color: #dc2626;'>Infrastructure</strong><br/>
+                    <small style='color: #64748b;'>System health & events</small>
+                </div>
+                <div style='background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #6366f1;'>
+                    <div style='font-size: 1.5rem; margin-bottom: 0.5rem;'>🔒</div>
+                    <strong style='color: #4f46e5;'>Governance & Compliance</strong><br/>
+                    <small style='color: #64748b;'>Policy & regulatory</small>
+                </div>
+            </div>
+            <div style='text-align: center; padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: 8px;'>
+                <div style='font-size: 1.2rem; margin-bottom: 0.5rem;'>⬇️</div>
+                <strong style='color: #1e40af;'>Universal Forwarders (156 active)</strong> → 
+                <strong style='color: #7c3aed;'>Heavy Forwarders (12 active)</strong> → 
+                <strong style='color: #059669;'>Splunk Indexers (12 active)</strong>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("---")
+        
+        # Interactive Source Selector
+        st.markdown("##### 🔍 Explore Each Source Category")
+        
+        source_categories = [
+            "🤖 AI/ML Applications",
+            "🔗 RAG Pipeline", 
+            "📊 Model Metrics",
+            "👥 User Interactions",
+            "🖥️ Infrastructure",
+            "🔒 Governance & Compliance"
+        ]
+        
+        selected_source = st.selectbox(
+            "Select a source category to view sample logs:",
+            source_categories,
+            help="Choose a source to see what kind of logs it generates"
+        )
+        
+        # Source Statistics
+        col1, col2, col3, col4 = st.columns(4)
+        
+        # Generate stats based on selected source
+        if "AI/ML" in selected_source:
+            with col1:
+                st.metric("Logs/Hour", "45,234", delta="+2,341", help="Log generation rate")
+            with col2:
+                st.metric("Active Models", "5", help="Currently served models")
+            with col3:
+                st.metric("Avg Latency", "847ms", delta="-23ms", help="Model response time")
+            with col4:
+                st.metric("GPU Utilization", "73%", delta="+5%", help="GPU usage across cluster")
+                
+        elif "RAG" in selected_source:
+            with col1:
+                st.metric("Chain Executions", "32,156", delta="+1,543", help="Complete RAG chains")
+            with col2:
+                st.metric("Avg Chain Time", "2,375ms", delta="+125ms", help="End-to-end latency")
+            with col3:
+                st.metric("Retrieval Accuracy", "94.3%", delta="+1.2%", help="Vector search quality")
+            with col4:
+                st.metric("Documents Indexed", "1.2M", help="Total documents in vector DB")
+                
+        elif "Model Metrics" in selected_source:
+            with col1:
+                st.metric("P95 Latency", "1,240ms", delta="+140ms", help="95th percentile response time")
+            with col2:
+                st.metric("Hallucination Rate", "2.3%", delta="-0.5%", delta_color="inverse", help="Detected hallucinations")
+            with col3:
+                st.metric("Drift Events", "3", delta="+1", help="Model drift detections today")
+            with col4:
+                st.metric("Quality Score", "0.94", delta="+0.02", help="Average quality metric")
+                
+        elif "User" in selected_source:
+            with col1:
+                st.metric("Active Users", "234", delta="+12", help="Unique users today")
+            with col2:
+                st.metric("Sessions", "5,678", delta="+234", help="Total sessions")
+            with col3:
+                st.metric("Avg Duration", "8.3 min", delta="+1.2 min", help="Average session length")
+            with col4:
+                st.metric("Failed Logins", "12", delta="-3", delta_color="inverse", help="Authentication failures")
+                
+        elif "Infrastructure" in selected_source:
+            with col1:
+                st.metric("Cluster Nodes", "20", help="Total Kubernetes nodes")
+            with col2:
+                st.metric("Avg CPU", "67%", delta="+5%", help="Average CPU utilization")
+            with col3:
+                st.metric("Memory Usage", "73%", delta="+2%", help="Average memory utilization")
+            with col4:
+                st.metric("Incidents", "2", delta="-1", delta_color="inverse", help="Active incidents")
+                
+        else:  # Governance
+            with col1:
+                st.metric("Policy Checks", "15,234", delta="+1,234", help="Policy evaluations")
+            with col2:
+                st.metric("Violations", "3", delta="-2", delta_color="inverse", help="Policy violations")
+            with col3:
+                st.metric("Anomalies", "7", delta="+2", help="Detected anomalies")
+            with col4:
+                st.metric("Audit Events", "2,456", delta="+123", help="Audit trail entries")
+        
+        st.markdown("---")
+        
+        # Live Log Generation for Selected Source
+        st.markdown(f"##### 📜 Sample Logs from: {selected_source}")
+        
+        if st.session_state.show_help:
+            show_help_bubble("👇 These are real-time sample logs showing the structure and fields captured from this source")
+        
+        # Generate button
+        if st.button(f"🎲 Generate Sample Logs from {selected_source}", type="primary"):
+            st.session_state.sample_logs_generated = True
+        
+        if st.session_state.get('sample_logs_generated', False):
+            for i in range(3):
+                log = generate_source_specific_log(selected_source)
+                
+                # Color code based on status
+                if "status" in log:
+                    if log["status"] in ["success", "compliant", "healthy"]:
+                        status_emoji = "🟢"
+                    elif log["status"] in ["warning", "degraded"]:
+                        status_emoji = "🟡"
+                    else:
+                        status_emoji = "🔴"
+                else:
+                    status_emoji = "⚪"
+                
+                with st.expander(f"{status_emoji} Log #{i+1} - {log['timestamp']}", expanded=i==0):
+                    col1, col2 = st.columns([2, 1])
+                    
+                    with col1:
+                        st.json(log)
+                    
+                    with col2:
+                        st.markdown("**Key Fields:**")
+                        st.markdown(f"- **Source**: {log['source_category']}")
+                        st.markdown(f"- **Trace ID**: `{log['trace_id']}`")
+                        
+                        if "model" in log:
+                            st.markdown(f"- **Model**: {log['model']}")
+                        if "latency_ms" in log:
+                            st.markdown(f"- **Latency**: {log['latency_ms']}ms")
+                        if "stage" in log:
+                            st.markdown(f"- **Stage**: {log['stage']}")
+                        if "user_id" in log:
+                            st.markdown(f"- **User**: {log['user_id']}")
+                        if "host" in log:
+                            st.markdown(f"- **Host**: {log['host']}")
+                        if "policy_type" in log:
+                            st.markdown(f"- **Policy**: {log['policy_type']}")
+        
+        st.markdown("---")
+        
+        # Collection Methods
+        st.markdown("##### 🔧 Collection Methods by Source")
+        
+        collection_info = {
+            "🤖 AI/ML Applications": {
+                "forwarder": "Universal Forwarder (sidecar)",
+                "frequency": "Real-time (streaming)",
+                "protocol": "HTTP/HTTPS, gRPC",
+                "parsing": "JSON + custom timestamp extraction",
+                "index": "aiml_models, aiml_training"
+            },
+            "🔗 RAG Pipeline": {
+                "forwarder": "Heavy Forwarder (central)",
+                "frequency": "Real-time (per-stage)",
+                "protocol": "HTTP API endpoints",
+                "parsing": "JSON + trace ID correlation",
+                "index": "aiml_rag"
+            },
+            "📊 Model Metrics": {
+                "forwarder": "Heavy Forwarder (aggregator)",
+                "frequency": "Every 60 seconds (batch)",
+                "protocol": "Prometheus metrics → transformed",
+                "parsing": "Metric transformation + enrichment",
+                "index": "aiml_metrics"
+            },
+            "👥 User Interactions": {
+                "forwarder": "Universal Forwarder (web tier)",
+                "frequency": "Real-time (event-based)",
+                "protocol": "HTTPS",
+                "parsing": "W3C Extended Log + user enrichment",
+                "index": "user_activity"
+            },
+            "🖥️ Infrastructure": {
+                "forwarder": "Universal Forwarder (DaemonSet)",
+                "frequency": "Real-time + 30-second intervals",
+                "protocol": "Kubernetes API, syslog",
+                "parsing": "K8s events + system metrics",
+                "index": "infrastructure"
+            },
+            "🔒 Governance & Compliance": {
+                "forwarder": "Heavy Forwarder (policy engine)",
+                "frequency": "Real-time (policy evaluation)",
+                "protocol": "Internal API",
+                "parsing": "Policy DSL + audit formatting",
+                "index": "security_audit"
+            }
+        }
+        
+        if selected_source in collection_info:
+            info = collection_info[selected_source]
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.info(f"""
+                **Collection Configuration:**
+                
+                - **Forwarder Type**: {info['forwarder']}
+                - **Collection Frequency**: {info['frequency']}
+                - **Protocol**: {info['protocol']}
+                """)
+            
+            with col2:
+                st.success(f"""
+                **Processing & Storage:**
+                
+                - **Parsing Method**: {info['parsing']}
+                - **Target Index**: `{info['index']}`
+                - **Retention**: 14-180 days (configurable)
+                """)
+        
+        # Summary Statistics
+        st.markdown("---")
+        st.markdown("##### 📊 Overall Source Statistics (Last 24h)")
+        
+        source_stats = pd.DataFrame({
+            "Source Category": [
+                "AI/ML Applications",
+                "RAG Pipeline",
+                "Model Metrics",
+                "User Interactions",
+                "Infrastructure",
+                "Governance & Compliance"
+            ],
+            "Log Volume": ["45,234", "32,156", "15,890", "23,456", "67,123", "12,345"],
+            "Avg Size (KB)": [2.3, 1.8, 0.5, 1.2, 3.4, 1.9],
+            "Error Rate": ["0.5%", "0.2%", "0.0%", "1.2%", "2.1%", "0.3%"],
+            "Forwarders": [45, 12, 8, 23, 156, 6],
+            "Status": ["🟢 Healthy", "🟢 Healthy", "🟢 Healthy", "🟢 Healthy", "🟡 Warning", "🟢 Healthy"]
+        })
+        
+        st.dataframe(source_stats, use_container_width=True, hide_index=True)
+    
+    # Tab 2: Live Simulator  
+    with tab2:
+        st.subheader("🎮 Live Log Ingestion Simulator")
+        
+        if st.session_state.show_help:
+            show_info_card(
+                "🎮 Live Simulator",
+                "This simulator demonstrates real-time log ingestion. Click 'Start Ingestion' to begin generating logs from all six source categories."
+            )
+        
+        col1, col2, col3 = st.columns([1, 1, 1])
         
         with col1:
-            if st.button("🚀 Start Ingestion", type="primary", use_container_width=True):
+            if st.button("▶️ Start Ingestion", type="primary", help="Begin simulating log generation"):
                 st.session_state.ingestion_active = True
-        
+                
         with col2:
-            if st.button("⏸️ Pause Ingestion", use_container_width=True):
+            if st.button("⏸️ Stop Ingestion", help="Stop log generation"):
                 st.session_state.ingestion_active = False
-        
+                
         with col3:
-            if st.button("🔄 Reset Stats", use_container_width=True):
-                st.session_state.log_count = 0
-                st.session_state.total_cost = 0.0
+            if st.button("🗑️ Clear Logs", help="Clear all generated logs"):
                 st.session_state.log_history = []
         
         st.markdown("---")
         
-        # Live stats
-        col1, col2, col3, col4 = st.columns(4)
-        
-        with col1:
-            st.metric("Logs Ingested", st.session_state.log_count, help="Total logs captured since start")
-        with col2:
-            st.metric("Ingestion Rate", f"{random.randint(1000, 3000)}/sec", help="Current logs per second")
-        with col3:
-            st.metric("Total Cost", f"${st.session_state.total_cost:.4f}", help="Accumulated processing cost")
-        with col4:
-            st.metric("Buffer Usage", f"{random.randint(20, 60)}%", help="Heavy Forwarder buffer utilization")
-        
-        # Live log stream
-        st.subheader("📜 Live Log Stream")
-        
-        if st.session_state.show_help:
-            show_info_card(
-                "📜 Understanding Log Stream",
-                "Each log entry shows: timestamp, trace ID (for request correlation), model used, "
-                "processing stage, latency, token usage, and cost. Status indicators: 🟢 Success | 🟡 Warning | 🔴 Error"
-            )
-        
-        log_container = st.container()
-        
-        if st.session_state.ingestion_active:
-            with log_container:
-                # Generate and display logs
-                for _ in range(5):
-                    log = generate_log_entry()
-                    st.session_state.log_count += 1
-                    st.session_state.total_cost += log['cost_usd']
-                    st.session_state.log_history.append(log)
-                    
-                    # Keep only last 100 logs
-                    if len(st.session_state.log_history) > 100:
-                        st.session_state.log_history.pop(0)
-                    
-                    status_color = {
-                        "success": "🟢",
-                        "warning": "🟡",
-                        "error": "🔴"
-                    }
-                    
-                    st.code(
-                        f"{status_color[log['status']]} [{log['timestamp']}] "
-                        f"trace_id={log['trace_id']} | model={log['model']} | "
-                        f"stage={log['stage']} | latency={log['latency_ms']}ms | "
-                        f"tokens={log['tokens_input']}→{log['tokens_output']} | "
-                        f"cost=${log['cost_usd']:.4f}",
-                        language="log"
-                    )
-                
-                time.sleep(0.1)
-                st.rerun()
+        # Status
+        if st.session_state.get('ingestion_active', False):
+            st.success("🟢 **Status**: Ingestion Active - Generating logs from all sources...")
+            
+            # Generate a log from a random source
+            source_categories = [
+                "🤖 AI/ML Applications",
+                "🔗 RAG Pipeline", 
+                "📊 Model Metrics",
+                "👥 User Interactions",
+                "🖥️ Infrastructure",
+                "🔒 Governance & Compliance"
+            ]
+            new_log = generate_source_specific_log(random.choice(source_categories))
+            st.session_state.log_history.append(new_log)
+            
+            # Show recent logs
+            st.markdown("##### 📜 Recent Logs (Last 10)")
+            for i, log in enumerate(st.session_state.log_history[-10:][::-1]):
+                with st.expander(f"Log {len(st.session_state.log_history) - i} - {log['source_category']} - {log['timestamp']}", expanded=i==0):
+                    st.json(log)
         else:
-            with log_container:
-                st.info("👆 Click 'Start Ingestion' above to begin streaming logs in real-time...")
+            st.info("⏸️ **Status**: Ingestion Paused - Click 'Start Ingestion' to begin")
+            
+            if st.session_state.log_history:
+                st.markdown(f"##### 📊 Total Logs Captured: {len(st.session_state.log_history)}")
     
-    with tab2:
+    # Tab 3: Forwarder Status
+
+  
+    
+    with tab3:
         st.subheader("📊 Universal Forwarder Status")
         
         if st.session_state.show_help:
@@ -834,7 +1207,7 @@ elif page == "📥 Layer 1: Log Ingestion":
             )
             st.plotly_chart(fig, use_container_width=True)
     
-    with tab3:
+    with tab4:
         st.subheader("🔍 Log Inspector & Parser")
         
         if st.session_state.show_help:
@@ -873,7 +1246,7 @@ elif page == "📥 Layer 1: Log Ingestion":
         else:
             st.info("📭 Start ingestion in the 'Live Simulator' tab to see log details...")
     
-    with tab4:
+    with tab5:
         st.subheader("📈 Ingestion Metrics & Analytics")
         
         col1, col2 = st.columns(2)
