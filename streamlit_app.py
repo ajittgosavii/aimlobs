@@ -16,22 +16,130 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for better styling
+# Custom CSS for professional styling with centered navigation
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #1E40AF;
-        text-align: center;
-        margin-bottom: 1rem;
+    /* Professional sidebar styling */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
     }
+    
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
+        color: #e2e8f0;
+    }
+    
+    /* Center navigation items */
+    [data-testid="stSidebar"] .stRadio > div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    [data-testid="stSidebar"] .stRadio > label {
+        display: flex;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #60a5fa;
+        margin-bottom: 0.5rem;
+    }
+    
+    [data-testid="stSidebar"] .stRadio [role="radiogroup"] {
+        gap: 0.75rem;
+    }
+    
+    [data-testid="stSidebar"] .stRadio label {
+        background: rgba(30, 64, 175, 0.1);
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        width: 100%;
+        text-align: center;
+        font-size: 0.95rem;
+    }
+    
+    [data-testid="stSidebar"] .stRadio label:hover {
+        background: rgba(59, 130, 246, 0.2);
+        border-color: #3b82f6;
+        transform: translateX(5px);
+    }
+    
+    [data-testid="stSidebar"] .stRadio label[data-checked="true"] {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        border-color: #60a5fa;
+        color: white;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    }
+    
+    /* Main content styling */
+    .main-header {
+        font-size: 2.8rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #1e40af 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-align: center;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+    }
+    
     .sub-header {
-        font-size: 1.2rem;
-        color: #6B7280;
+        font-size: 1.1rem;
+        color: #6b7280;
         text-align: center;
         margin-bottom: 2rem;
+        font-weight: 500;
     }
+    
+    /* Help bubble styling */
+    .help-bubble {
+        position: relative;
+        display: inline-block;
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: white;
+        padding: 0.75rem 1.25rem;
+        border-radius: 12px;
+        margin: 1rem 0;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        animation: pulse 2s infinite;
+    }
+    
+    .help-bubble::before {
+        content: "💡";
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
+        50% { box-shadow: 0 6px 25px rgba(59, 130, 246, 0.5); }
+    }
+    
+    .info-card {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border-left: 4px solid #3b82f6;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+    
+    .info-card-title {
+        font-weight: 700;
+        color: #1e40af;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-card-content {
+        color: #1e3a8a;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+    
+    /* Metric cards */
     .metric-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         padding: 1.5rem;
@@ -39,39 +147,101 @@ st.markdown("""
         color: white;
         text-align: center;
     }
+    
+    /* Status boxes */
     .success-box {
-        background-color: #D1FAE5;
-        border-left: 5px solid #10B981;
+        background-color: #d1fae5;
+        border-left: 5px solid #10b981;
         padding: 1rem;
         border-radius: 5px;
         margin: 1rem 0;
     }
+    
     .warning-box {
-        background-color: #FEF3C7;
-        border-left: 5px solid #F59E0B;
+        background-color: #fef3c7;
+        border-left: 5px solid #f59e0b;
         padding: 1rem;
         border-radius: 5px;
         margin: 1rem 0;
     }
+    
     .error-box {
-        background-color: #FEE2E2;
-        border-left: 5px solid #EF4444;
+        background-color: #fee2e2;
+        border-left: 5px solid #ef4444;
         padding: 1rem;
         border-radius: 5px;
         margin: 1rem 0;
     }
+    
+    /* Tabs styling */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 2rem;
+        gap: 1rem;
+        background-color: #f9fafb;
+        padding: 0.5rem;
+        border-radius: 8px;
     }
+    
     .stTabs [data-baseweb="tab"] {
         height: 3rem;
         padding: 0 2rem;
-        background-color: #F3F4F6;
-        border-radius: 5px 5px 0 0;
+        background-color: white;
+        border-radius: 6px;
+        border: 2px solid #e5e7eb;
+        font-weight: 600;
     }
+    
     .stTabs [aria-selected="true"] {
-        background-color: #1E40AF;
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
         color: white;
+        border-color: #3b82f6;
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+    }
+    
+    /* Sidebar metrics styling */
+    [data-testid="stSidebar"] .stMetric {
+        background: rgba(59, 130, 246, 0.1);
+        padding: 0.75rem;
+        border-radius: 8px;
+        border: 1px solid rgba(96, 165, 250, 0.2);
+    }
+    
+    [data-testid="stSidebar"] .stMetric label {
+        color: #94a3b8 !important;
+        font-size: 0.85rem;
+    }
+    
+    [data-testid="stSidebar"] .stMetric [data-testid="stMetricValue"] {
+        color: #60a5fa !important;
+        font-size: 1.5rem;
+    }
+    
+    /* Tour highlight */
+    .tour-highlight {
+        animation: highlight 2s ease-in-out infinite;
+        border: 2px solid #fbbf24;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+    
+    @keyframes highlight {
+        0%, 100% { box-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
+        50% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.8); }
+    }
+    
+    /* Tooltip styling */
+    .tooltip-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        background: #3b82f6;
+        color: white;
+        border-radius: 50%;
+        font-size: 0.75rem;
+        font-weight: bold;
+        cursor: help;
+        margin-left: 0.5rem;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -87,6 +257,10 @@ if 'ingestion_active' not in st.session_state:
     st.session_state.ingestion_active = False
 if 'log_history' not in st.session_state:
     st.session_state.log_history = []
+if 'show_help' not in st.session_state:
+    st.session_state.show_help = True
+if 'tour_step' not in st.session_state:
+    st.session_state.tour_step = 0
 
 # Data generation functions
 def generate_log_entry():
@@ -164,41 +338,125 @@ def generate_rag_chain():
     
     return trace_id, chain
 
-# Header
-st.markdown('<h1 class="main-header">🔍 AI/ML Observability Platform</h1>', unsafe_allow_html=True)
-st.markdown('<p class="sub-header">Interactive Prototype - Real-time Log Ingestion & Analytics</p>', unsafe_allow_html=True)
+def show_help_bubble(message, key=None):
+    """Display an animated help bubble"""
+    st.markdown(f'<div class="help-bubble">{message}</div>', unsafe_allow_html=True)
 
-# Sidebar navigation
+def show_info_card(title, content):
+    """Display an information card"""
+    st.markdown(f"""
+    <div class="info-card">
+        <div class="info-card-title">{title}</div>
+        <div class="info-card-content">{content}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Header with welcome message
+st.markdown('<h1 class="main-header">🔍 AI/ML Observability Platform</h1>', unsafe_allow_html=True)
+st.markdown('<p class="sub-header">Interactive Prototype - Real-time Log Ingestion & Analytics with Splunk</p>', unsafe_allow_html=True)
+
+# Welcome guide toggle
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    if st.session_state.show_help:
+        show_help_bubble("👋 Welcome! This prototype demonstrates a complete AI/ML observability platform. Navigate through layers using the sidebar.")
+        if st.button("✕ Hide Help Mode", key="hide_help"):
+            st.session_state.show_help = False
+            st.rerun()
+    else:
+        if st.button("❓ Show Help Mode", key="show_help"):
+            st.session_state.show_help = True
+            st.rerun()
+
+st.markdown("---")
+
+# Professional centered sidebar navigation
 with st.sidebar:
-    st.image("https://via.placeholder.com/200x60/1E40AF/FFFFFF?text=SPLUNK+AI/ML", use_column_width=True)
+    # Logo/Brand
+    st.markdown("""
+    <div style='text-align: center; padding: 1rem 0 2rem 0;'>
+        <div style='background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); 
+                    padding: 1rem; border-radius: 12px; margin-bottom: 1rem;'>
+            <h2 style='color: white; margin: 0; font-size: 1.5rem;'>🔍 SPLUNK</h2>
+            <p style='color: #dbeafe; margin: 0.25rem 0 0 0; font-size: 0.9rem;'>AI/ML Observability</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
     st.markdown("---")
     
+    # Navigation with centered styling
     page = st.radio(
-        "🧭 Navigation",
+        "🧭 Navigation Center",
         ["🏠 Overview Dashboard", 
          "📥 Layer 1: Log Ingestion",
          "⚙️ Layer 2: Processing",
          "💾 Layer 3: Storage",
          "📊 Layer 4: Consumption",
          "🔗 End-to-End Tracing",
-         "⚡ Real-time Monitoring"]
+         "⚡ Real-time Monitoring"],
+        label_visibility="visible"
     )
     
     st.markdown("---")
-    st.markdown("### ⚙️ System Status")
+    
+    # System Status Section
+    st.markdown("""
+    <div style='text-align: center; margin-bottom: 1rem;'>
+        <h3 style='color: #60a5fa; font-size: 1.1rem; margin-bottom: 1rem;'>⚙️ System Status</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
     st.success("✅ All systems operational")
-    st.metric("Uptime", "99.97%", delta="0.02%")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Uptime", "99.97%", delta="0.02%")
+    with col2:
+        st.metric("Indexers", "12", delta="0")
+    
     st.metric("Active Forwarders", "156", delta="2")
-    st.metric("Indexers", "12", delta="0")
     
     st.markdown("---")
-    st.markdown("### 📈 Quick Stats")
+    
+    # Quick Stats Section
+    st.markdown("""
+    <div style='text-align: center; margin-bottom: 1rem;'>
+        <h3 style='color: #60a5fa; font-size: 1.1rem; margin-bottom: 1rem;'>📈 Quick Stats</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
     st.metric("Total Logs Today", f"{st.session_state.log_count:,}", delta=f"+{random.randint(100, 500)}")
     st.metric("Active Alerts", st.session_state.alert_count, delta=f"{random.randint(-2, 3)}")
     st.metric("Total Cost (24h)", f"${st.session_state.total_cost:.2f}", delta=f"+${random.uniform(0.5, 2.0):.2f}")
+    
+    st.markdown("---")
+    
+    # Help section
+    with st.expander("📖 Quick Guide"):
+        st.markdown("""
+        **Navigation:**
+        - Click any layer to explore
+        - Each layer simulates real functionality
+        
+        **Features:**
+        - Real-time log generation
+        - Interactive SPL queries  
+        - RAG chain visualization
+        - Cost analytics
+        
+        **Tip:** Start with Overview Dashboard!
+        """)
 
 # Page content based on selection
 if page == "🏠 Overview Dashboard":
+    if st.session_state.show_help:
+        show_info_card(
+            "🎯 Overview Dashboard", 
+            "This executive dashboard provides high-level KPIs and metrics across all layers. " 
+            "Monitor ingestion volume, query performance, model metrics, and system health at a glance."
+        )
+    
     st.header("📊 Executive Dashboard")
     
     # Key metrics row
@@ -208,7 +466,8 @@ if page == "🏠 Overview Dashboard":
         st.metric(
             label="Total Ingestion (24h)",
             value="2.4 TB",
-            delta="+124 GB"
+            delta="+124 GB",
+            help="Total data ingested across all forwarders in the last 24 hours"
         )
     
     with col2:
@@ -216,14 +475,16 @@ if page == "🏠 Overview Dashboard":
             label="Avg Query Latency",
             value="847 ms",
             delta="-23 ms",
-            delta_color="inverse"
+            delta_color="inverse",
+            help="Average search query response time across the cluster"
         )
     
     with col3:
         st.metric(
             label="Model Inference Count",
             value="1.2M",
-            delta="+45K"
+            delta="+45K",
+            help="Total AI/ML model inference requests processed today"
         )
     
     with col4:
@@ -231,7 +492,8 @@ if page == "🏠 Overview Dashboard":
             label="Hallucination Rate",
             value="2.3%",
             delta="-0.5%",
-            delta_color="inverse"
+            delta_color="inverse",
+            help="Percentage of LLM responses flagged as potential hallucinations"
         )
     
     with col5:
@@ -239,10 +501,14 @@ if page == "🏠 Overview Dashboard":
             label="Cost Efficiency",
             value="$0.0023/req",
             delta="-$0.0002",
-            delta_color="inverse"
+            delta_color="inverse",
+            help="Average cost per model inference request"
         )
     
     st.markdown("---")
+    
+    if st.session_state.show_help:
+        show_help_bubble("📈 These charts update in real-time. Hover over data points for detailed information!")
     
     # Two column layout for charts
     col1, col2 = st.columns(2)
@@ -262,7 +528,8 @@ if page == "🏠 Overview Dashboard":
             name='Ingestion Volume',
             line=dict(color='#1E40AF', width=3),
             fill='tozeroy',
-            fillcolor='rgba(30, 64, 175, 0.2)'
+            fillcolor='rgba(30, 64, 175, 0.2)',
+            hovertemplate='<b>Time:</b> %{x}<br><b>Volume:</b> %{y:.1f} GB<extra></extra>'
         ))
         fig.update_layout(
             height=300,
@@ -289,7 +556,8 @@ if page == "🏠 Overview Dashboard":
                 showscale=False
             ),
             text=[f"{l}ms" for l in latencies],
-            textposition='outside'
+            textposition='outside',
+            hovertemplate='<b>Model:</b> %{x}<br><b>Latency:</b> %{y}ms<extra></extra>'
         ))
         fig.update_layout(
             height=300,
@@ -305,6 +573,13 @@ if page == "🏠 Overview Dashboard":
     # RAG Pipeline Health
     st.subheader("🔄 RAG Pipeline Stage Performance")
     
+    if st.session_state.show_help:
+        show_info_card(
+            "🔄 RAG Pipeline Monitoring",
+            "Monitor each stage of your Retrieval-Augmented Generation pipeline. "
+            "Track latency and throughput to identify bottlenecks and optimize performance."
+        )
+    
     stages = ["Ingestion", "Embedding", "Retrieval", "Prompt", "Inference", "Post-Proc"]
     avg_latency = [35, 150, 60, 12, 2100, 18]
     p95_latency = [45, 200, 85, 18, 2800, 25]
@@ -314,8 +589,20 @@ if page == "🏠 Overview Dashboard":
     
     with col1:
         fig = go.Figure()
-        fig.add_trace(go.Bar(name='Avg Latency', x=stages, y=avg_latency, marker_color='#10B981'))
-        fig.add_trace(go.Bar(name='P95 Latency', x=stages, y=p95_latency, marker_color='#F59E0B'))
+        fig.add_trace(go.Bar(
+            name='Avg Latency', 
+            x=stages, 
+            y=avg_latency, 
+            marker_color='#10B981',
+            hovertemplate='<b>%{x}</b><br>Avg: %{y}ms<extra></extra>'
+        ))
+        fig.add_trace(go.Bar(
+            name='P95 Latency', 
+            x=stages, 
+            y=p95_latency, 
+            marker_color='#F59E0B',
+            hovertemplate='<b>%{x}</b><br>P95: %{y}ms<extra></extra>'
+        ))
         fig.update_layout(
             height=300,
             margin=dict(l=0, r=0, t=0, b=0),
@@ -333,7 +620,8 @@ if page == "🏠 Overview Dashboard":
             y=throughput,
             mode='lines+markers',
             line=dict(color='#8B5CF6', width=3),
-            marker=dict(size=10)
+            marker=dict(size=10),
+            hovertemplate='<b>%{x}</b><br>Throughput: %{y} req/sec<extra></extra>'
         ))
         fig.update_layout(
             height=300,
@@ -348,6 +636,9 @@ if page == "🏠 Overview Dashboard":
     # Active Alerts
     st.subheader("⚠️ Active Alerts & Anomalies")
     
+    if st.session_state.show_help:
+        show_help_bubble("🚨 Alerts are automatically generated based on predefined thresholds and ML-powered anomaly detection")
+    
     col1, col2, col3 = st.columns(3)
     
     with col1:
@@ -355,7 +646,8 @@ if page == "🏠 Overview Dashboard":
         <div class="error-box">
             <strong>🔴 CRITICAL</strong><br/>
             High hallucination rate detected in GPT-4<br/>
-            <small>Threshold: 15% | Current: 18.3%</small>
+            <small>Threshold: 15% | Current: 18.3%</small><br/>
+            <small>📍 Action: PagerDuty incident #12345 created</small>
         </div>
         """, unsafe_allow_html=True)
     
@@ -364,7 +656,8 @@ if page == "🏠 Overview Dashboard":
         <div class="warning-box">
             <strong>🟡 WARNING</strong><br/>
             Claude-3 latency increasing<br/>
-            <small>Baseline: 850ms | Current: 1240ms</small>
+            <small>Baseline: 850ms | Current: 1240ms</small><br/>
+            <small>📍 Action: Slack notification sent to #ml-ops</small>
         </div>
         """, unsafe_allow_html=True)
     
@@ -373,17 +666,33 @@ if page == "🏠 Overview Dashboard":
         <div class="success-box">
             <strong>🟢 INFO</strong><br/>
             Cost optimization detected<br/>
-            <small>Savings: $234.50 (24h)</small>
+            <small>Savings: $234.50 (24h)</small><br/>
+            <small>📍 Action: Report emailed to FinOps team</small>
         </div>
         """, unsafe_allow_html=True)
 
 elif page == "📥 Layer 1: Log Ingestion":
+    if st.session_state.show_help:
+        show_info_card(
+            "📥 Log Ingestion Layer",
+            "This layer captures logs from all sources using Universal and Heavy Forwarders. "
+            "Start the simulator to see real-time log ingestion in action!"
+        )
+    
     st.header("📥 Layer 1: Log Ingestion & Collection Infrastructure")
     
-    tab1, tab2, tab3, tab4 = st.tabs(["🎮 Live Simulator", "📊 Forwarder Status", "🔍 Log Inspector", "📈 Metrics"])
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "🎮 Live Simulator", 
+        "📊 Forwarder Status", 
+        "🔍 Log Inspector", 
+        "📈 Metrics"
+    ])
     
     with tab1:
         st.subheader("🎮 Real-time Log Ingestion Simulator")
+        
+        if st.session_state.show_help:
+            show_help_bubble("🎮 Click 'Start Ingestion' to simulate real-time log collection from multiple sources. Watch the metrics update live!")
         
         col1, col2, col3 = st.columns(3)
         
@@ -407,16 +716,23 @@ elif page == "📥 Layer 1: Log Ingestion":
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.metric("Logs Ingested", st.session_state.log_count)
+            st.metric("Logs Ingested", st.session_state.log_count, help="Total logs captured since start")
         with col2:
-            st.metric("Ingestion Rate", f"{random.randint(1000, 3000)}/sec")
+            st.metric("Ingestion Rate", f"{random.randint(1000, 3000)}/sec", help="Current logs per second")
         with col3:
-            st.metric("Total Cost", f"${st.session_state.total_cost:.4f}")
+            st.metric("Total Cost", f"${st.session_state.total_cost:.4f}", help="Accumulated processing cost")
         with col4:
-            st.metric("Buffer Usage", f"{random.randint(20, 60)}%")
+            st.metric("Buffer Usage", f"{random.randint(20, 60)}%", help="Heavy Forwarder buffer utilization")
         
         # Live log stream
         st.subheader("📜 Live Log Stream")
+        
+        if st.session_state.show_help:
+            show_info_card(
+                "📜 Understanding Log Stream",
+                "Each log entry shows: timestamp, trace ID (for request correlation), model used, "
+                "processing stage, latency, token usage, and cost. Status indicators: 🟢 Success | 🟡 Warning | 🔴 Error"
+            )
         
         log_container = st.container()
         
@@ -452,18 +768,26 @@ elif page == "📥 Layer 1: Log Ingestion":
                 st.rerun()
         else:
             with log_container:
-                st.info("Click 'Start Ingestion' to begin streaming logs...")
+                st.info("👆 Click 'Start Ingestion' above to begin streaming logs in real-time...")
     
     with tab2:
         st.subheader("📊 Universal Forwarder Status")
         
+        if st.session_state.show_help:
+            show_info_card(
+                "📊 Forwarder Monitoring",
+                "Universal Forwarders are lightweight agents installed on application servers. "
+                "They collect logs and forward them to Heavy Forwarders for processing."
+            )
+        
         # Generate forwarder data
         forwarders_data = []
         for i in range(10):
+            status = random.choice(["🟢 Active", "🟢 Active", "🟢 Active", "🟡 Warning"])
             forwarders_data.append({
                 "Forwarder ID": f"UF-{i+1:03d}",
                 "Host": f"app-server-{i+1:02d}.prod.internal",
-                "Status": random.choice(["🟢 Active", "🟢 Active", "🟢 Active", "🟡 Warning"]),
+                "Status": status,
                 "CPU %": f"{random.randint(10, 70)}%",
                 "Memory": f"{random.randint(50, 95)} MB",
                 "Logs/sec": f"{random.randint(100, 1500)}",
@@ -484,7 +808,8 @@ elif page == "📥 Layer 1: Log Ingestion":
                 labels=list(health_data.keys()),
                 values=list(health_data.values()),
                 marker=dict(colors=['#10B981', '#F59E0B', '#EF4444']),
-                hole=0.4
+                hole=0.4,
+                hovertemplate='<b>%{label}</b><br>Count: %{value}<extra></extra>'
             )])
             fig.update_layout(height=300, margin=dict(l=0, r=0, t=0, b=0))
             st.plotly_chart(fig, use_container_width=True)
@@ -498,7 +823,8 @@ elif page == "📥 Layer 1: Log Ingestion":
                 x=volumes,
                 y=top_forwarders,
                 orientation='h',
-                marker_color='#1E40AF'
+                marker_color='#1E40AF',
+                hovertemplate='<b>%{y}</b><br>Volume: %{x:,} logs/hour<extra></extra>'
             ))
             fig.update_layout(
                 height=300,
@@ -510,6 +836,13 @@ elif page == "📥 Layer 1: Log Ingestion":
     
     with tab3:
         st.subheader("🔍 Log Inspector & Parser")
+        
+        if st.session_state.show_help:
+            show_info_card(
+                "🔍 Log Parsing",
+                "Heavy Forwarders parse logs to extract structured fields. "
+                "This enables fast searching and correlation across millions of events."
+            )
         
         if st.session_state.log_history:
             selected_log = random.choice(st.session_state.log_history[-20:])
@@ -530,7 +863,7 @@ elif page == "📥 Layer 1: Log Ingestion":
                 - **Status**: `{selected_log['status']}`
                 """)
                 
-                st.markdown("##### 🎯 Metadata")
+                st.markdown("##### 🎯 Metadata Enrichment")
                 st.markdown(f"""
                 - **Environment**: `production`
                 - **Region**: `us-west-2`
@@ -538,7 +871,7 @@ elif page == "📥 Layer 1: Log Ingestion":
                 - **Version**: `v2.4.1`
                 """)
         else:
-            st.info("Start ingestion to see log details")
+            st.info("📭 Start ingestion in the 'Live Simulator' tab to see log details...")
     
     with tab4:
         st.subheader("📈 Ingestion Metrics & Analytics")
@@ -553,7 +886,8 @@ elif page == "📥 Layer 1: Log Ingestion":
             fig = go.Figure(data=[go.Pie(
                 labels=sources,
                 values=counts,
-                hole=0.3
+                hole=0.3,
+                hovertemplate='<b>%{label}</b><br>Count: %{value:,}<br>Percentage: %{percent}<extra></extra>'
             )])
             fig.update_layout(height=300, margin=dict(l=0, r=0, t=0, b=0))
             st.plotly_chart(fig, use_container_width=True)
@@ -570,7 +904,8 @@ elif page == "📥 Layer 1: Log Ingestion":
                 mode='lines',
                 fill='tozeroy',
                 line=dict(color='#8B5CF6'),
-                fillcolor='rgba(139, 92, 246, 0.2)'
+                fillcolor='rgba(139, 92, 246, 0.2)',
+                hovertemplate='<b>%{x} min ago</b><br>Rate: %{y} logs/sec<extra></extra>'
             ))
             fig.update_layout(
                 height=300,
@@ -581,12 +916,22 @@ elif page == "📥 Layer 1: Log Ingestion":
             st.plotly_chart(fig, use_container_width=True)
 
 elif page == "⚙️ Layer 2: Processing":
+    if st.session_state.show_help:
+        show_info_card(
+            "⚙️ Processing & Analytics Layer",
+            "This layer processes ingested logs using Splunk Processing Language (SPL), " 
+            "performs ML-powered analytics, and generates alerts based on anomalies and thresholds."
+        )
+    
     st.header("⚙️ Layer 2: Real-Time Processing & Analytics")
     
     tab1, tab2, tab3 = st.tabs(["🔧 SPL Queries", "🤖 ML Analytics", "⚡ Alerting"])
     
     with tab1:
         st.subheader("🔧 Search Processing Language (SPL) Console")
+        
+        if st.session_state.show_help:
+            show_help_bubble("💡 SPL is Splunk's query language. Select a template, customize if needed, and click 'Run Query' to see results!")
         
         # Predefined queries
         query_templates = {
@@ -597,7 +942,11 @@ elif page == "⚙️ Layer 2: Processing":
             "Error Rate": "index=aiml_models | stats count(eval(status='error')) as errors, count as total | eval error_rate=errors/total*100"
         }
         
-        selected_template = st.selectbox("Select Query Template", list(query_templates.keys()))
+        selected_template = st.selectbox(
+            "Select Query Template", 
+            list(query_templates.keys()),
+            help="Choose from pre-built queries for common use cases"
+        )
         
         query = st.text_area("SPL Query", value=query_templates[selected_template], height=100)
         
@@ -611,7 +960,7 @@ elif page == "⚙️ Layer 2: Processing":
             with st.spinner("Executing query..."):
                 time.sleep(1)
                 
-                st.success("✅ Query completed in 0.847 seconds")
+                st.success("✅ Query completed in 0.847 seconds | Scanned 2.4M events")
                 
                 # Generate results based on query type
                 if "Model Performance" in selected_template:
@@ -642,12 +991,26 @@ elif page == "⚙️ Layer 2: Processing":
                 
                 # Visualization
                 if "Model Performance" in selected_template or "Hallucination" in selected_template:
-                    fig = px.bar(results, x=results.columns[0], y=results.columns[1], 
-                                title="Query Results Visualization")
+                    fig = px.bar(
+                        results, 
+                        x=results.columns[0], 
+                        y=results.columns[1], 
+                        title="Query Results Visualization",
+                        color=results.columns[1],
+                        color_continuous_scale='Viridis'
+                    )
+                    fig.update_layout(height=300)
                     st.plotly_chart(fig, use_container_width=True)
     
     with tab2:
         st.subheader("🤖 Machine Learning Toolkit (MLTK)")
+        
+        if st.session_state.show_help:
+            show_info_card(
+                "🤖 ML-Powered Analytics",
+                "Splunk's ML Toolkit detects anomalies, predicts trends, and identifies drift automatically. "
+                "Red markers indicate detected anomalies that exceed thresholds."
+            )
         
         col1, col2 = st.columns(2)
         
@@ -672,10 +1035,16 @@ elif page == "⚙️ Layer 2: Processing":
                 marker=dict(
                     size=[15 if l > 2000 else 5 for l in normal_latency],
                     color=['red' if l > 2000 else '#3B82F6' for l in normal_latency]
-                )
+                ),
+                hovertemplate='<b>Time:</b> %{x}<br><b>Latency:</b> %{y:.0f}ms<extra></extra>'
             ))
-            fig.add_hline(y=2000, line_dash="dash", line_color="red", 
-                         annotation_text="Anomaly Threshold")
+            fig.add_hline(
+                y=2000, 
+                line_dash="dash", 
+                line_color="red", 
+                annotation_text="Anomaly Threshold (2000ms)",
+                annotation_position="top right"
+            )
             fig.update_layout(
                 height=300,
                 margin=dict(l=0, r=0, t=30, b=0),
@@ -685,7 +1054,7 @@ elif page == "⚙️ Layer 2: Processing":
             )
             st.plotly_chart(fig, use_container_width=True)
             
-            st.info("🔍 Detected 3 anomalies in the last 48 hours")
+            st.info("🔍 Detected 3 anomalies in the last 48 hours (marked in red)")
         
         with col2:
             st.markdown("##### 📊 Model Drift Detection")
@@ -703,24 +1072,33 @@ elif page == "⚙️ Layer 2: Processing":
                     colorscale=[[0, 'green'], [0.5, 'yellow'], [1, 'red']],
                     showscale=True,
                     colorbar=dict(title="Drift Score")
-                )
+                ),
+                hovertemplate='<b>%{y}</b><br>Drift Score: %{x:.2f}<extra></extra>'
             ))
-            fig.add_vline(x=0.15, line_dash="dash", line_color="red",
-                         annotation_text="Warning Threshold")
+            fig.add_vline(
+                x=0.15, 
+                line_dash="dash", 
+                line_color="red",
+                annotation_text="Warning Threshold",
+                annotation_position="top"
+            )
             fig.update_layout(
                 height=300,
                 margin=dict(l=0, r=0, t=30, b=0),
-                title="Feature Drift Analysis",
+                title="Feature Drift Analysis (KS Test)",
                 xaxis_title="Drift Score (KS Statistic)",
                 yaxis_title="Feature"
             )
             st.plotly_chart(fig, use_container_width=True)
             
-            st.warning("⚠️ Features C and E exceed drift threshold")
+            st.warning("⚠️ Features C and E exceed drift threshold (>0.15)")
         
         st.markdown("---")
         
         st.markdown("##### 📈 Predictive Analytics - Capacity Forecast")
+        
+        if st.session_state.show_help:
+            show_help_bubble("📊 Forecasting helps plan infrastructure capacity and prevent resource shortages")
         
         days = pd.date_range(start=datetime.now() - timedelta(days=30), 
                             end=datetime.now() + timedelta(days=7), freq='D')
@@ -732,18 +1110,25 @@ elif page == "⚙️ Layer 2: Processing":
             x=days[:30],
             y=historical,
             mode='lines',
-            name='Historical',
-            line=dict(color='#1E40AF', width=2)
+            name='Historical Data',
+            line=dict(color='#1E40AF', width=2),
+            hovertemplate='<b>Date:</b> %{x}<br><b>Volume:</b> %{y:.1f} GB<extra></extra>'
         ))
         fig.add_trace(go.Scatter(
             x=days[30:],
             y=forecast,
             mode='lines',
-            name='Forecast',
-            line=dict(color='#F59E0B', width=2, dash='dash')
+            name='Forecast (ML-predicted)',
+            line=dict(color='#F59E0B', width=2, dash='dash'),
+            hovertemplate='<b>Date:</b> %{x}<br><b>Forecast:</b> %{y:.1f} GB<extra></extra>'
         ))
-        fig.add_hline(y=140, line_dash="dash", line_color="red",
-                     annotation_text="Capacity Limit")
+        fig.add_hline(
+            y=140, 
+            line_dash="dash", 
+            line_color="red",
+            annotation_text="Capacity Limit",
+            annotation_position="right"
+        )
         fig.update_layout(
             height=300,
             margin=dict(l=0, r=0, t=0, b=0),
@@ -755,6 +1140,13 @@ elif page == "⚙️ Layer 2: Processing":
     
     with tab3:
         st.subheader("⚡ Alert Manager & Notification System")
+        
+        if st.session_state.show_help:
+            show_info_card(
+                "⚡ Intelligent Alerting",
+                "Alerts are automatically generated when metrics exceed thresholds or anomalies are detected. "
+                "Different severity levels route to different notification channels."
+            )
         
         col1, col2 = st.columns([2, 1])
         
@@ -768,7 +1160,7 @@ elif page == "⚙️ Layer 2: Processing":
                     "description": "Hallucination rate exceeded 15% threshold",
                     "value": "18.3%",
                     "time": "2 minutes ago",
-                    "action": "PagerDuty incident created"
+                    "action": "PagerDuty incident #12345 created"
                 },
                 {
                     "severity": "🟡 WARNING",
@@ -776,7 +1168,7 @@ elif page == "⚙️ Layer 2: Processing":
                     "description": "P95 latency above baseline",
                     "value": "1240ms (baseline: 850ms)",
                     "time": "15 minutes ago",
-                    "action": "Slack notification sent"
+                    "action": "Slack notification sent to #ml-ops"
                 },
                 {
                     "severity": "🟡 WARNING",
@@ -816,7 +1208,12 @@ elif page == "⚙️ Layer 2: Processing":
             st.dataframe(alert_stats, use_container_width=True, hide_index=True)
             
             st.markdown("##### 🎯 MTTR")
-            st.metric("Mean Time To Resolve", "12.3 min", delta="-2.1 min")
+            st.metric(
+                "Mean Time To Resolve", 
+                "12.3 min", 
+                delta="-2.1 min",
+                help="Average time from alert generation to resolution"
+            )
             
             st.markdown("##### 📨 Notification Channels")
             st.markdown("""
@@ -827,6 +1224,13 @@ elif page == "⚙️ Layer 2: Processing":
             """)
 
 elif page == "💾 Layer 3: Storage":
+    if st.session_state.show_help:
+        show_info_card(
+            "💾 Storage & Lifecycle Management",
+            "Data moves through storage tiers automatically based on age and access patterns. "
+            "Hot storage for real-time queries, cold storage for compliance and historical analysis."
+        )
+    
     st.header("💾 Layer 3: Data Storage & Lifecycle Management")
     
     tab1, tab2 = st.tabs(["🗄️ Storage Tiers", "📋 Retention Policies"])
@@ -834,17 +1238,20 @@ elif page == "💾 Layer 3: Storage":
     with tab1:
         st.subheader("🗄️ Splunk Indexer Cluster - Storage Tier Status")
         
+        if st.session_state.show_help:
+            show_help_bubble("💡 Data automatically moves through tiers: Hot (fast, expensive) → Warm → Cold → Frozen (slow, cheap)")
+        
         # Storage overview metrics
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.metric("Hot Storage", "2.4 TB", delta="+124 GB")
+            st.metric("Hot Storage", "2.4 TB", delta="+124 GB", help="NVMe SSD - Last 7-30 days")
         with col2:
-            st.metric("Warm Storage", "8.7 TB", delta="+89 GB")
+            st.metric("Warm Storage", "8.7 TB", delta="+89 GB", help="SATA SSD - 30-90 days")
         with col3:
-            st.metric("Cold Storage", "45.2 TB", delta="+234 GB")
+            st.metric("Cold Storage", "45.2 TB", delta="+234 GB", help="S3 - 90-365 days")
         with col4:
-            st.metric("Frozen/Archive", "234.5 TB", delta="+1.2 TB")
+            st.metric("Frozen/Archive", "234.5 TB", delta="+1.2 TB", help="Glacier - 1-7 years")
         
         st.markdown("---")
         
@@ -877,7 +1284,8 @@ elif page == "💾 Layer 3: Storage":
                 labels=labels,
                 values=sizes,
                 hole=0.4,
-                marker=dict(colors=['#EF4444', '#F59E0B', '#3B82F6', '#8B5CF6'])
+                marker=dict(colors=['#EF4444', '#F59E0B', '#3B82F6', '#8B5CF6']),
+                hovertemplate='<b>%{label}</b><br>Size: %{value} TB<br>Percentage: %{percent}<extra></extra>'
             )])
             fig.update_layout(height=300, margin=dict(l=0, r=0, t=0, b=0))
             st.plotly_chart(fig, use_container_width=True)
@@ -895,7 +1303,8 @@ elif page == "💾 Layer 3: Storage":
                 mode='lines',
                 fill='tozeroy',
                 line=dict(color='#1E40AF', width=3),
-                fillcolor='rgba(30, 64, 175, 0.2)'
+                fillcolor='rgba(30, 64, 175, 0.2)',
+                hovertemplate='<b>Date:</b> %{x}<br><b>Total:</b> %{y:.1f} TB<extra></extra>'
             ))
             fig.update_layout(
                 height=300,
@@ -910,15 +1319,24 @@ elif page == "💾 Layer 3: Storage":
         st.markdown("##### 🔄 Data Lifecycle Automation")
         
         st.info("""
-        **Automated Data Movement:**
+        **Automated Data Movement Schedule:**
         - **Hot → Warm**: After 7 days (AI/ML logs), 3 days (Infrastructure)
         - **Warm → Cold**: After 30 days (Application logs), 60 days (Model logs)
         - **Cold → Frozen**: After 90 days (Application), 180 days (Model logs)
         - **Frozen → Purge**: After retention period expires (configurable by index)
+        
+        💡 **Benefit**: Automatic cost optimization while maintaining compliance requirements
         """)
     
     with tab2:
         st.subheader("📋 Data Retention Policies by Index")
+        
+        if st.session_state.show_help:
+            show_info_card(
+                "📋 Retention Policies",
+                "Different log types have different retention requirements based on compliance, " 
+                "business needs, and cost considerations. Security logs are kept longest for audit purposes."
+            )
         
         retention_data = {
             "Index": ["aiml_models", "aiml_training", "aiml_rag", "infrastructure", "security_audit", "devops_ci_cd"],
@@ -949,7 +1367,8 @@ elif page == "💾 Layer 3: Storage":
                 y=costs,
                 marker_color='#8B5CF6',
                 text=[f"${c}" for c in costs],
-                textposition='outside'
+                textposition='outside',
+                hovertemplate='<b>%{x}</b><br>Monthly Cost: $%{y}<extra></extra>'
             ))
             fig.update_layout(
                 height=300,
@@ -973,12 +1392,20 @@ elif page == "💾 Layer 3: Storage":
             fig = go.Figure(data=[go.Pie(
                 labels=list(movements.keys()),
                 values=list(movements.values()),
-                hole=0.3
+                hole=0.3,
+                hovertemplate='<b>%{label}</b><br>Events: %{value:,}<extra></extra>'
             )])
             fig.update_layout(height=300, margin=dict(l=0, r=0, t=0, b=0))
             st.plotly_chart(fig, use_container_width=True)
 
 elif page == "📊 Layer 4: Consumption":
+    if st.session_state.show_help:
+        show_info_card(
+            "📊 Consumption & Visualization Layer",
+            "This layer provides dashboards, APIs, and integrations for consuming the observability data. "
+            "Different stakeholders access data through role-appropriate interfaces."
+        )
+    
     st.header("📊 Layer 4: Consumption, Visualization & Integration")
     
     tab1, tab2, tab3 = st.tabs(["📈 Dashboards", "🔌 API Explorer", "🔗 Integrations"])
@@ -988,10 +1415,14 @@ elif page == "📊 Layer 4: Consumption":
         
         dashboard_type = st.selectbox(
             "Select Dashboard",
-            ["AI/ML Operations", "RAG Pipeline", "Infrastructure", "Security & Compliance", "Cost Analytics"]
+            ["AI/ML Operations", "RAG Pipeline", "Infrastructure", "Security & Compliance", "Cost Analytics"],
+            help="Choose from role-specific dashboards"
         )
         
         if dashboard_type == "AI/ML Operations":
+            if st.session_state.show_help:
+                show_help_bubble("📊 This dashboard provides real-time insights into all AI/ML models across your organization")
+            
             col1, col2, col3 = st.columns(3)
             
             with col1:
@@ -1026,7 +1457,8 @@ elif page == "📊 Layer 4: Consumption":
                     y=tokens,
                     mode='lines',
                     fill='tozeroy',
-                    line=dict(color='#8B5CF6', width=2)
+                    line=dict(color='#8B5CF6', width=2),
+                    hovertemplate='<b>Hour:</b> %{x}<br><b>Tokens:</b> %{y:,}<extra></extra>'
                 ))
                 fig.update_layout(
                     title="Token Usage (Last 24h)",
@@ -1037,34 +1469,10 @@ elif page == "📊 Layer 4: Consumption":
                 )
                 st.plotly_chart(fig, use_container_width=True)
         
-        elif dashboard_type == "RAG Pipeline":
-            st.markdown("##### 🔄 RAG Pipeline End-to-End Performance")
-            
-            stages = ["Ingestion", "Embedding", "Retrieval", "Prompt", "Inference", "Post-Proc"]
-            current_latency = [35, 150, 60, 12, 2100, 18]
-            baseline_latency = [30, 140, 55, 10, 2000, 15]
-            
-            fig = go.Figure()
-            fig.add_trace(go.Bar(name='Current', x=stages, y=current_latency, marker_color='#3B82F6'))
-            fig.add_trace(go.Bar(name='Baseline', x=stages, y=baseline_latency, marker_color='#10B981'))
-            fig.update_layout(
-                height=300,
-                margin=dict(l=0, r=0, t=0, b=0),
-                barmode='group',
-                xaxis_title="Stage",
-                yaxis_title="Latency (ms)"
-            )
-            st.plotly_chart(fig, use_container_width=True)
-            
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("Total Chain Latency", "2,375ms", delta="+125ms")
-            with col2:
-                st.metric("Retrieval Accuracy", "94.3%", delta="+1.2%")
-            with col3:
-                st.metric("Citation Coverage", "87.5%", delta="+2.3%")
-        
         elif dashboard_type == "Cost Analytics":
+            if st.session_state.show_help:
+                show_help_bubble("💰 Track and optimize AI/ML costs across teams, models, and time periods")
+            
             col1, col2 = st.columns(2)
             
             with col1:
@@ -1076,7 +1484,8 @@ elif page == "📊 Layer 4: Consumption":
                 fig = go.Figure(data=[go.Pie(
                     labels=teams,
                     values=costs,
-                    hole=0.4
+                    hole=0.4,
+                    hovertemplate='<b>%{label}</b><br>Cost: $%{value:,}<br>Percentage: %{percent}<extra></extra>'
                 )])
                 fig.update_layout(height=300, margin=dict(l=0, r=0, t=0, b=0))
                 st.plotly_chart(fig, use_container_width=True)
@@ -1092,10 +1501,16 @@ elif page == "📊 Layer 4: Consumption":
                     x=days,
                     y=daily_costs,
                     mode='lines+markers',
-                    line=dict(color='#F59E0B', width=2)
+                    line=dict(color='#F59E0B', width=2),
+                    hovertemplate='<b>Date:</b> %{x}<br><b>Cost:</b> $%{y:.2f}<extra></extra>'
                 ))
-                fig.add_hline(y=500, line_dash="dash", line_color="red",
-                             annotation_text="Budget Threshold")
+                fig.add_hline(
+                    y=500, 
+                    line_dash="dash", 
+                    line_color="red",
+                    annotation_text="Budget Threshold",
+                    annotation_position="right"
+                )
                 fig.update_layout(
                     height=300,
                     margin=dict(l=0, r=0, t=0, b=0),
@@ -1106,6 +1521,13 @@ elif page == "📊 Layer 4: Consumption":
     
     with tab2:
         st.subheader("🔌 Splunk REST API Explorer")
+        
+        if st.session_state.show_help:
+            show_info_card(
+                "🔌 API Access",
+                "Use REST APIs to programmatically access Splunk data. " 
+                "Integrate with custom applications, scripts, and other tools in your ecosystem."
+            )
         
         endpoint = st.selectbox(
             "Select API Endpoint",
@@ -1181,6 +1603,9 @@ for result in job.results():
     with tab3:
         st.subheader("🔗 External System Integrations")
         
+        if st.session_state.show_help:
+            show_help_bubble("🔗 Pre-configured integrations with ITSM, incident management, and collaboration tools")
+        
         integrations = {
             "ServiceNow": {
                 "status": "🟢 Connected",
@@ -1231,6 +1656,13 @@ for result in job.results():
                         st.markdown(f"- {metric}: **{value}**")
 
 elif page == "🔗 End-to-End Tracing":
+    if st.session_state.show_help:
+        show_info_card(
+            "🔗 End-to-End Request Tracing",
+            "Trace complete request flows through your RAG pipeline. " 
+            "Every request gets a unique trace ID that links all processing stages together."
+        )
+    
     st.header("🔗 End-to-End Request Tracing")
     
     st.info("""
@@ -1251,6 +1683,9 @@ elif page == "🔗 End-to-End Tracing":
     if 'current_trace' in st.session_state:
         trace_id, chain = st.session_state.current_trace
         
+        if st.session_state.show_help:
+            show_help_bubble("🔍 This timeline shows each stage of the RAG pipeline execution with exact timing")
+        
         st.markdown(f"### 🔍 Trace ID: `{trace_id}`")
         
         # Timeline visualization
@@ -1268,13 +1703,15 @@ elif page == "🔗 End-to-End Tracing":
         
         fig = go.Figure()
         
+        colors = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#6B7280']
+        
         for i, step in enumerate(chain):
             fig.add_trace(go.Bar(
                 name=step['stage'],
                 x=[durations[i]],
                 y=[step['stage']],
                 orientation='h',
-                marker=dict(color=f'hsl({i*60}, 70%, 50%)'),
+                marker=dict(color=colors[i % len(colors)]),
                 text=f"{durations[i]}ms",
                 textposition='inside',
                 hovertemplate=f"<b>{step['stage']}</b><br>" +
@@ -1308,19 +1745,26 @@ elif page == "🔗 End-to-End Tracing":
         total_latency = sum(step['latency_ms'] for step in chain)
         
         with col1:
-            st.metric("Total Latency", f"{total_latency}ms")
+            st.metric("Total Latency", f"{total_latency}ms", help="Sum of all stage latencies")
         with col2:
-            st.metric("Stages Completed", len(chain))
+            st.metric("Stages Completed", len(chain), help="Number of pipeline stages")
         with col3:
-            st.metric("Success Rate", "100%")
+            st.metric("Success Rate", "100%", help="Percentage of successful stages")
         with col4:
             slowest = max(chain, key=lambda x: x['latency_ms'])
-            st.metric("Slowest Stage", slowest['stage'])
+            st.metric("Slowest Stage", slowest['stage'], help=f"{slowest['latency_ms']}ms")
         
         st.markdown("---")
         
         # SPL Query to retrieve this trace
         st.markdown("##### 💻 SPL Query to Reconstruct This Chain")
+        
+        if st.session_state.show_help:
+            show_info_card(
+                "💻 Trace Reconstruction",
+                "This SPL query retrieves all log entries with the same trace ID and orders them chronologically. " 
+                "Copy this query and run it in the Processing layer to see actual results."
+            )
         
         spl_query = f"""index=aiml_rag trace_id="{trace_id}" 
 | transaction trace_id maxspan=30s 
@@ -1344,30 +1788,69 @@ elif page == "🔗 End-to-End Tracing":
                 })
 
 else:  # Real-time Monitoring
+    if st.session_state.show_help:
+        show_info_card(
+            "⚡ Real-time System Monitoring",
+            "Live dashboard showing current system status across all components. " 
+            "Enable auto-refresh to see metrics update automatically every 5 seconds."
+        )
+    
     st.header("⚡ Real-time System Monitoring")
     
     st.markdown("##### 🎛️ Live System Metrics")
     
-    # Auto-refresh
-    auto_refresh = st.checkbox("🔄 Auto-refresh (5 seconds)", value=True)
+    # Auto-refresh toggle
+    auto_refresh = st.checkbox(
+        "🔄 Auto-refresh (5 seconds)", 
+        value=True,
+        help="Automatically refresh metrics every 5 seconds"
+    )
     
     if auto_refresh:
         time.sleep(5)
         st.rerun()
     
+    if st.session_state.show_help:
+        show_help_bubble("📊 All metrics refresh automatically when auto-refresh is enabled")
+    
     # Real-time metrics
     col1, col2, col3, col4, col5 = st.columns(5)
     
     with col1:
-        st.metric("Ingestion Rate", f"{random.randint(2500, 3500)}/s", delta=f"+{random.randint(50, 200)}")
+        st.metric(
+            "Ingestion Rate", 
+            f"{random.randint(2500, 3500)}/s", 
+            delta=f"+{random.randint(50, 200)}",
+            help="Events ingested per second"
+        )
     with col2:
-        st.metric("Query Load", f"{random.randint(150, 250)}/s", delta=f"+{random.randint(-20, 30)}")
+        st.metric(
+            "Query Load", 
+            f"{random.randint(150, 250)}/s", 
+            delta=f"+{random.randint(-20, 30)}",
+            help="Search queries per second"
+        )
     with col3:
-        st.metric("Indexer CPU", f"{random.randint(45, 75)}%", delta=f"+{random.randint(-5, 10)}%")
+        st.metric(
+            "Indexer CPU", 
+            f"{random.randint(45, 75)}%", 
+            delta=f"+{random.randint(-5, 10)}%",
+            help="Average CPU across indexers"
+        )
     with col4:
-        st.metric("Network I/O", f"{random.randint(800, 1200)} Mbps", delta=f"+{random.randint(-50, 100)}")
+        st.metric(
+            "Network I/O", 
+            f"{random.randint(800, 1200)} Mbps", 
+            delta=f"+{random.randint(-50, 100)}",
+            help="Network throughput"
+        )
     with col5:
-        st.metric("Active Queries", f"{random.randint(50, 100)}", delta=f"+{random.randint(-10, 15)}")
+        st.metric(
+            "Active Queries", 
+            f"{random.randint(50, 100)}", 
+            delta=f"+{random.randint(-10, 15)}",
+            help="Currently executing queries"
+        )
     
     st.markdown("---")
     
@@ -1387,7 +1870,8 @@ else:  # Real-time Monitoring
             mode='lines',
             fill='tozeroy',
             line=dict(color='#10B981', width=2),
-            fillcolor='rgba(16, 185, 129, 0.2)'
+            fillcolor='rgba(16, 185, 129, 0.2)',
+            hovertemplate='<b>%{x} sec ago</b><br>Rate: %{y} logs/sec<extra></extra>'
         ))
         fig.update_layout(
             height=300,
@@ -1408,10 +1892,16 @@ else:  # Real-time Monitoring
             x=seconds,
             y=response_times,
             mode='lines',
-            line=dict(color='#3B82F6', width=2)
+            line=dict(color='#3B82F6', width=2),
+            hovertemplate='<b>%{x} sec ago</b><br>Response: %{y}ms<extra></extra>'
         ))
-        fig.add_hline(y=800, line_dash="dash", line_color="red",
-                     annotation_text="SLA Threshold")
+        fig.add_hline(
+            y=800, 
+            line_dash="dash", 
+            line_color="red",
+            annotation_text="SLA Threshold (800ms)",
+            annotation_position="right"
+        )
         fig.update_layout(
             height=300,
             margin=dict(l=0, r=0, t=0, b=0),
@@ -1423,6 +1913,9 @@ else:  # Real-time Monitoring
     st.markdown("---")
     
     st.markdown("##### 🖥️ Cluster Health")
+    
+    if st.session_state.show_help:
+        show_help_bubble("🖥️ Monitor the health and resource usage of all cluster components in real-time")
     
     # Cluster status
     cluster_data = {
@@ -1443,7 +1936,10 @@ else:  # Real-time Monitoring
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #6B7280; padding: 2rem 0;'>
-    <p><strong>AI/ML Observability Platform</strong> | Prototype v1.0</p>
-    <p>Powered by Splunk | Built for demonstration purposes</p>
+    <p><strong>🔍 AI/ML Observability Platform</strong> | Interactive Prototype v1.0</p>
+    <p style='font-size: 0.9rem;'>Powered by Splunk | Built for Demonstration & Education</p>
+    <p style='font-size: 0.85rem; margin-top: 0.5rem;'>
+        💡 <strong>Tip:</strong> Explore all layers to see the complete platform capabilities
+    </p>
 </div>
 """, unsafe_allow_html=True)
