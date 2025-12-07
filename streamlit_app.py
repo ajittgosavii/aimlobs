@@ -506,10 +506,37 @@ with st.sidebar:
     
     st.markdown("---")
     
+    
+    # Configuration Portal Link
+    st.markdown("""
+    <div style='text-align: center; margin-bottom: 1rem;'>
+        <h3 style='color: #60a5fa; font-size: 1.1rem; margin-bottom: 1rem;'>⚙️ Configuration</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <a href="https://aimlconfig.streamlit.app/" target="_blank" style="
+        display: block;
+        background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+        color: white;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    ">
+        🔧 Open Config Portal →
+    </a>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+
     # System Status Section
     st.markdown("""
     <div style='text-align: center; margin-bottom: 1rem;'>
-        <h3 style='color: #60a5fa; font-size: 1.1rem; margin-bottom: 1rem;'>⚙️ System Status</h3>
+        <h3 style='color: #60a5fa; font-size: 1.1rem; margin-bottom: 1rem;'>📊 System Status</h3>
     </div>
     """, unsafe_allow_html=True)
     
