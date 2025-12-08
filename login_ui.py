@@ -1,5 +1,5 @@
 """
-Login UI Module
+Login UI Module - Professional Centered Design
 Provides login, registration, and password reset interfaces
 """
 
@@ -7,7 +7,7 @@ import streamlit as st
 import auth
 
 def show_login_page():
-    """Display login page"""
+    """Display professional centered login page"""
     
     # Initialize session state
     auth.init_session_state()
@@ -17,11 +17,99 @@ def show_login_page():
         show_authenticated_ui()
         return
     
-    # Login UI
+    # Professional centered login page styling
     st.markdown("""
-    <div style='text-align: center; padding: 2rem 0;'>
-        <h1 style='color: #1e40af;'>🔐 AI/ML Observability Platform</h1>
-        <p style='color: #64748b; font-size: 1.1rem;'>Please sign in to continue</p>
+    <style>
+        /* Hide sidebar on login page */
+        [data-testid="stSidebar"] {
+            display: none;
+        }
+        
+        /* Center the main content */
+        .main .block-container {
+            max-width: 500px;
+            padding-top: 5rem;
+            padding-bottom: 5rem;
+        }
+        
+        /* Login card styling */
+        .login-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 2rem;
+        }
+        
+        /* Header styling */
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .login-header h1 {
+            color: #1e40af;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-header p {
+            color: #64748b;
+            font-size: 1rem;
+        }
+        
+        /* Tab styling */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+        }
+        
+        /* Input field styling */
+        .stTextInput input {
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+        }
+        
+        .stTextInput input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        /* Button styling */
+        .stButton button {
+            border-radius: 6px;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+        }
+        
+        /* Footer styling */
+        .login-footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.875rem;
+            margin-top: 2rem;
+        }
+        
+        /* Make forms look better */
+        [data-testid="stForm"] {
+            background: transparent;
+            border: none;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Login header
+    st.markdown("""
+    <div class="login-header">
+        <h1>🔐 AI/ML Observability Platform</h1>
+        <p>Please sign in to continue</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -30,16 +118,28 @@ def show_login_page():
     
     # Login Tab
     with tab1:
-        with st.form("login_form"):
-            st.markdown("### Sign In")
-            email = st.text_input("Email Address", placeholder="you@company.com")
-            password = st.text_input("Password", type="password", placeholder="Enter your password")
+        with st.form("login_form", clear_on_submit=False):
+            email = st.text_input(
+                "Email Address",
+                placeholder="you@company.com",
+                key="login_email"
+            )
+            password = st.text_input(
+                "Password",
+                type="password",
+                placeholder="Enter your password",
+                key="login_password"
+            )
             
-            col1, col2 = st.columns([2, 1])
+            col1, col2 = st.columns([3, 1])
             with col1:
-                submit = st.form_submit_button("🔓 Sign In", use_container_width=True, type="primary")
+                submit = st.form_submit_button(
+                    "🔓 Sign In",
+                    use_container_width=True,
+                    type="primary"
+                )
             with col2:
-                remember_me = st.checkbox("Remember me", value=True)
+                remember = st.checkbox("Remember", value=True)
             
             if submit:
                 if not email or not password:
@@ -56,6 +156,8 @@ def show_login_page():
                                 if user_info['is_admin']:
                                     st.info("🔑 Admin access granted")
                                 
+                                # Small delay for user to see the success message
+                                time.sleep(1)
                                 st.rerun()
                             else:
                                 st.error("❌ Your account has been deactivated. Please contact support.")
@@ -64,25 +166,57 @@ def show_login_page():
     
     # Register Tab
     with tab2:
-        with st.form("register_form"):
-            st.markdown("### Create Account")
-            
+        with st.form("register_form", clear_on_submit=False):
             st.info("⚠️ Self-registration is currently disabled. Please contact your administrator to create an account.")
             
-            reg_email = st.text_input("Email Address", placeholder="you@company.com", disabled=True)
-            reg_name = st.text_input("Full Name", placeholder="John Doe", disabled=True)
-            reg_password = st.text_input("Password", type="password", placeholder="Min 6 characters", disabled=True)
-            reg_password_confirm = st.text_input("Confirm Password", type="password", disabled=True)
+            reg_email = st.text_input(
+                "Email Address",
+                placeholder="you@company.com",
+                disabled=True,
+                key="reg_email"
+            )
+            reg_name = st.text_input(
+                "Full Name",
+                placeholder="John Doe",
+                disabled=True,
+                key="reg_name"
+            )
+            reg_password = st.text_input(
+                "Password",
+                type="password",
+                placeholder="Min 6 characters",
+                disabled=True,
+                key="reg_password"
+            )
+            reg_password_confirm = st.text_input(
+                "Confirm Password",
+                type="password",
+                disabled=True,
+                key="reg_password_confirm"
+            )
             
-            submit_register = st.form_submit_button("📝 Create Account", use_container_width=True, disabled=True)
+            st.form_submit_button(
+                "📝 Create Account",
+                use_container_width=True,
+                disabled=True
+            )
     
     # Reset Password Tab
     with tab3:
-        with st.form("reset_form"):
-            st.markdown("### Reset Password")
-            reset_email = st.text_input("Email Address", placeholder="you@company.com")
+        with st.form("reset_form", clear_on_submit=False):
+            st.markdown("Enter your email address and we'll send you a password reset link.")
             
-            submit_reset = st.form_submit_button("📧 Send Reset Link", use_container_width=True, type="primary")
+            reset_email = st.text_input(
+                "Email Address",
+                placeholder="you@company.com",
+                key="reset_email"
+            )
+            
+            submit_reset = st.form_submit_button(
+                "📧 Send Reset Link",
+                use_container_width=True,
+                type="primary"
+            )
             
             if submit_reset:
                 if not reset_email:
@@ -96,9 +230,8 @@ def show_login_page():
                             st.error("❌ Failed to send reset email. Please try again.")
     
     # Footer
-    st.markdown("---")
     st.markdown("""
-    <div style='text-align: center; color: #94a3b8; font-size: 0.9rem;'>
+    <div class="login-footer">
         <p>© 2024 AI/ML Observability Platform • Secure Authentication via Firebase</p>
         <p>Need help? Contact support@yourcompany.com</p>
     </div>
@@ -136,7 +269,14 @@ def show_authenticated_ui():
 
 
 def require_auth(func):
-    """Decorator to require authentication for a page"""
+    """
+    Decorator to require authentication for a page
+    
+    Usage:
+        @require_auth
+        def my_page():
+            st.write("Protected content")
+    """
     def wrapper(*args, **kwargs):
         if not auth.is_authenticated():
             show_login_page()
@@ -146,7 +286,14 @@ def require_auth(func):
 
 
 def require_admin(func):
-    """Decorator to require admin privileges for a page"""
+    """
+    Decorator to require admin privileges for a page
+    
+    Usage:
+        @require_admin
+        def admin_page():
+            st.write("Admin only content")
+    """
     def wrapper(*args, **kwargs):
         if not auth.is_authenticated():
             show_login_page()
@@ -158,3 +305,7 @@ def require_admin(func):
         
         return func(*args, **kwargs)
     return wrapper
+
+
+# Import time for the delay after successful login
+import time
