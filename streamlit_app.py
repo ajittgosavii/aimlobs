@@ -1,3 +1,71 @@
+"""
+AI/ML Observability Dashboard with Firebase Authentication
+"""
+
+import streamlit as st
+
+# ============================================================
+# AUTHENTICATION SECTION - DO NOT REMOVE OR MOVE
+# This code MUST be at the top before any other streamlit commands
+# ============================================================
+
+# Import authentication modules
+try:
+    import auth
+    import login_ui
+    import admin_panel
+    
+    # Initialize Firebase and session state
+    auth.init_firebase()
+    auth.init_session_state()
+    auth.initialize_admin()  # Creates default admin user on first run
+    
+    # Check if user is authenticated
+    if not auth.is_authenticated():
+        # Show login page and stop execution
+        login_ui.show_login_page()
+        st.stop()
+    
+    # User is authenticated - show their profile in sidebar
+    login_ui.show_authenticated_ui()
+    
+    # Admin panel access (only for admin users)
+    if auth.is_admin():
+        st.sidebar.markdown("---")
+        st.sidebar.markdown("### 🔧 Admin Controls")
+        if st.sidebar.button("👤 Manage Users", use_container_width=True, type="primary"):
+            st.session_state.show_admin_panel = True
+    
+    # Show admin panel if requested
+    if st.session_state.get('show_admin_panel', False):
+        admin_panel.show_admin_panel()
+        
+        if st.button("← Back to Dashboard"):
+            st.session_state.show_admin_panel = False
+            st.rerun()
+        
+        st.stop()  # Don't show dashboard when in admin panel
+
+except ImportError as e:
+    st.error(f"❌ Authentication modules not found: {str(e)}")
+    st.error("📥 Please ensure auth.py, login_ui.py, and admin_panel.py are in the same directory")
+    st.info("""
+    **Missing files? Download them:**
+    - auth.py
+    - login_ui.py
+    - admin_panel.py
+    
+    **Also need:**
+    - firebase-admin-key.json (from Firebase Console)
+    - .env file with Firebase credentials
+    """)
+    st.stop()
+
+# ============================================================
+# END AUTHENTICATION SECTION
+# Your original dashboard code starts below
+# ============================================================
+
 import streamlit as st
 import pandas as pd
 import numpy as np
