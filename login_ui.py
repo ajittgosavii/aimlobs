@@ -1,13 +1,14 @@
 """
-Login UI Module - Professional Centered Design
+Login UI Module - Ultra-Centered Professional Design
 Provides login, registration, and password reset interfaces
 """
 
 import streamlit as st
 import auth
+import time
 
 def show_login_page():
-    """Display professional centered login page"""
+    """Display ultra-centered professional login page"""
     
     # Initialize session state
     auth.init_session_state()
@@ -17,28 +18,42 @@ def show_login_page():
         show_authenticated_ui()
         return
     
-    # Professional centered login page styling
+    # Ultra-professional centered login page styling with aggressive centering
     st.markdown("""
     <style>
-        /* Hide sidebar on login page */
+        /* FORCE hide sidebar on login page */
         [data-testid="stSidebar"] {
-            display: none;
+            display: none !important;
         }
         
-        /* Center the main content */
+        /* FORCE center the main content with margin auto */
         .main .block-container {
-            max-width: 500px;
-            padding-top: 5rem;
-            padding-bottom: 5rem;
+            max-width: 480px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            padding-top: 3rem !important;
+            padding-bottom: 3rem !important;
+            padding-left: 2rem !important;
+            padding-right: 2rem !important;
         }
         
-        /* Login card styling */
-        .login-card {
+        /* Remove default Streamlit padding */
+        .main {
+            padding-top: 0 !important;
+        }
+        
+        /* Center everything inside */
+        .stApp {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        /* Login container card */
+        .login-container {
             background: white;
             padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            margin-bottom: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            margin: 0 auto;
         }
         
         /* Header styling */
@@ -49,58 +64,139 @@ def show_login_page():
         
         .login-header h1 {
             color: #1e40af;
-            font-size: 2rem;
+            font-size: 1.875rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
+            line-height: 1.2;
         }
         
         .login-header p {
             color: #64748b;
-            font-size: 1rem;
+            font-size: 0.938rem;
+            margin-top: 0.5rem;
         }
         
         /* Tab styling */
         .stTabs [data-baseweb="tab-list"] {
-            gap: 1rem;
+            gap: 0.5rem;
             justify-content: center;
+            background: transparent;
         }
         
         .stTabs [data-baseweb="tab"] {
-            padding: 0.75rem 1.5rem;
+            padding: 0.625rem 1.25rem;
             font-weight: 600;
+            font-size: 0.875rem;
+            border-radius: 8px;
+            background: transparent;
+        }
+        
+        .stTabs [data-baseweb="tab"]:hover {
+            background: #f1f5f9;
+        }
+        
+        .stTabs [aria-selected="true"] {
+            background: #eff6ff;
+            color: #1e40af;
         }
         
         /* Input field styling */
-        .stTextInput input {
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
-            padding: 0.75rem;
+        .stTextInput > div > div > input {
+            border-radius: 8px !important;
+            border: 1.5px solid #e2e8f0 !important;
+            padding: 0.75rem 1rem !important;
+            font-size: 0.938rem !important;
+            transition: all 0.2s !important;
         }
         
-        .stTextInput input:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        .stTextInput > div > div > input:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+            outline: none !important;
+        }
+        
+        .stTextInput > label {
+            font-weight: 600 !important;
+            color: #334155 !important;
+            font-size: 0.875rem !important;
+            margin-bottom: 0.5rem !important;
         }
         
         /* Button styling */
-        .stButton button {
-            border-radius: 6px;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
+        .stButton > button {
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            padding: 0.75rem 1.5rem !important;
+            font-size: 0.938rem !important;
+            transition: all 0.2s !important;
+            width: 100% !important;
+        }
+        
+        .stButton > button[kind="primary"] {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+            border: none !important;
+            color: white !important;
+        }
+        
+        .stButton > button[kind="primary"]:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        /* Checkbox styling */
+        .stCheckbox {
+            margin-top: 0.5rem !important;
+        }
+        
+        .stCheckbox > label {
+            font-size: 0.875rem !important;
+            color: #64748b !important;
         }
         
         /* Footer styling */
         .login-footer {
             text-align: center;
-            color: #94a3b8;
-            font-size: 0.875rem;
+            color: white;
+            font-size: 0.813rem;
             margin-top: 2rem;
+            line-height: 1.6;
         }
         
-        /* Make forms look better */
+        .login-footer p {
+            margin: 0.25rem 0;
+            opacity: 0.9;
+        }
+        
+        /* Form container */
         [data-testid="stForm"] {
             background: transparent;
             border: none;
+            padding: 0;
+        }
+        
+        /* Alert/Message styling */
+        .stAlert {
+            border-radius: 8px !important;
+            padding: 0.875rem !important;
+            margin: 1rem 0 !important;
+        }
+        
+        /* Info box styling */
+        .element-container div[data-testid="stMarkdownContainer"] p {
+            line-height: 1.6;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 640px) {
+            .main .block-container {
+                max-width: 100% !important;
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+            
+            .login-container {
+                padding: 1.5rem;
+            }
         }
     </style>
     """, unsafe_allow_html=True)
@@ -156,7 +252,6 @@ def show_login_page():
                                 if user_info['is_admin']:
                                     st.info("🔑 Admin access granted")
                                 
-                                # Small delay for user to see the success message
                                 time.sleep(1)
                                 st.rerun()
                             else:
@@ -269,14 +364,7 @@ def show_authenticated_ui():
 
 
 def require_auth(func):
-    """
-    Decorator to require authentication for a page
-    
-    Usage:
-        @require_auth
-        def my_page():
-            st.write("Protected content")
-    """
+    """Decorator to require authentication for a page"""
     def wrapper(*args, **kwargs):
         if not auth.is_authenticated():
             show_login_page()
@@ -286,14 +374,7 @@ def require_auth(func):
 
 
 def require_admin(func):
-    """
-    Decorator to require admin privileges for a page
-    
-    Usage:
-        @require_admin
-        def admin_page():
-            st.write("Admin only content")
-    """
+    """Decorator to require admin privileges for a page"""
     def wrapper(*args, **kwargs):
         if not auth.is_authenticated():
             show_login_page()
@@ -305,7 +386,3 @@ def require_admin(func):
         
         return func(*args, **kwargs)
     return wrapper
-
-
-# Import time for the delay after successful login
-import time
