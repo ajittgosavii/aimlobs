@@ -515,7 +515,7 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     
     st.markdown("""
-    <a href="https://aimlconfig.streamlit.app/" target="_blank" style="
+    <a href="https://aimlobs.streamlit.app" target="_blank" style="
         display: block;
         background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
         color: white;
